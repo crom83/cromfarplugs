@@ -1,0 +1,14 @@
+void		WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
+void		WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
+HANDLE	WINAPI _export OpenPluginW(int OpenFrom,int Item);
+void		WINAPI _export ClosePluginW(HANDLE hPlugin);
+int			WINAPI _export ConfigureW(int /*ItemNumber*/);
+void		WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info);
+int			WINAPI _export GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+void		WINAPI _export FreeFindDataW(HANDLE hPlugin, struct PluginPanelItem *PanelItem,int ItemsNumber);
+int			WINAPI _export ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState);
+int			WINAPI _export PutFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode);
+int			WINAPI _export GetFilesW(HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move,	const wchar_t **DestPath,	int OpMode);
+int			WINAPI _export ProcessEventW(HANDLE hPlugin,	int Event, void *Param);
+int			WINAPI _export GetMinFarVersionW(void);
+HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, int DataSize,int OpMode);

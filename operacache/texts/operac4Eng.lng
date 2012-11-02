@@ -1,0 +1,52 @@
+.Language=English,English
+
+"Opera Cache Browser"
+
+"Ok"
+"Cancel"
+"Yes"
+"No"
+"Always Yes"
+"Always No"
+"Retry"
+
+"Opera Cache Browser: Settings"
+"Prefix:"
+"Show File Extensions"
+"Show Full URL"
+"Open Files by Enter and Ctrl+PgDn"
+
+"URL"
+"File Name"
+"MIME Type"
+
+"Error"
+
+"Cache File Path: "
+"Cached URL:        "
+"Local File Name:   "
+"File Size:         "
+"MIME Type:         "
+"Character Set:     "
+"Status:            "
+"Record Type:       "
+"Last Visited Date: "
+"Last Loaded Date:  "
+"Expiry Date:       "
+
+"Copying Selected Items"
+"Enter Destination Directory:"
+"Enter File Name:"
+"Use Local File Names"
+"File\n%s\nalready exists! Overwrite it?"
+"Copying error. Try repeat?"
+"Deleting"
+"Error deleting file\n%s!\n%S\n%S!"
+
+"Full"
+"Short"
+
+"Load"
+"Visit"
+"Expiry"
+"MIME

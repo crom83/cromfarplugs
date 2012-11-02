@@ -1,0 +1,3 @@
+#define MAJORVERSION 1
+#define MINORVERSION 0
+#define BUILDNUMBER 42
