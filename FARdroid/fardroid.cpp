@@ -1096,6 +1096,7 @@ BOOL fardroid::ADBPullFile(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &
 remoteerror:
 	if(id == ID_FAIL)
 	{
+		char * buffer = new char[SYNC_DATA_MAX];
 		len = msg.data.size;
 		if(len > 256) len = 256;
 		if(ReadADBPacket(sockADB, buffer, len) <= 0)
