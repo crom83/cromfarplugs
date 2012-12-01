@@ -1348,39 +1348,9 @@ bool fardroid::ParseFileLine( CString & sLine, CFileRecords &files )
 			rec->desc.Format(_T("-> %s"), UTF8toW(tokens[6]));
 		}
 		break;
-	case '-'://file
-	case 'p'://FIFO
-		regex = _T("/([\\w-]+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+([\\w-]+(?=\\s))\\s+([\\w:]+(?=\\s))\\s(.+)$/");
-		RegExTokenize(sLine, regex, tokens);
-		if (tokens.GetSize() == 7)
-		{
-			rec = new CFileRecord;
-			rec->attr = StringToAttr(tokens[0]);
-			rec->owner = tokens[1];
-			rec->grp = tokens[2];
-			rec->size = _ttoi(tokens[3]);
-			rec->time = StringTimeToUnixTime(tokens[4], tokens[5]);
-			rec->filename = UTF8toW(tokens[6]);
-		}
-		else
-		{
-			regex = _T("/([\\w-]+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+([\\w-]+(?=\\s))\\s+([\\w:]+(?=\\s))\\s(.+)$/");
-			RegExTokenize(sLine, regex, tokens);
-			if (tokens.GetSize() == 6)
-			{
-				rec = new CFileRecord;
-				rec->attr = StringToAttr(tokens[0]);
-				rec->owner = tokens[1];
-				rec->grp = tokens[2];
-				rec->size = 0;
-				rec->time = StringTimeToUnixTime(tokens[3], tokens[4]);
-				rec->filename = UTF8toW(tokens[5]);
-			}
-		}
-		break;
 	case 'c'://device
 	case 'b':
-	case 's':
+	case 's'://socket
 		regex = _T("/([\\w-]+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+([\\w,]+\\s+\\w+(?=\\s))\\s+([\\w-]+(?=\\s))\\s+([\\w:]+(?=\\s))\\s(.+)$/");
 		RegExTokenize(sLine, regex, tokens);
 		if (tokens.GetSize() == 7)
@@ -1393,8 +1363,39 @@ bool fardroid::ParseFileLine( CString & sLine, CFileRecords &files )
 			rec->desc = tokens[3];
 			rec->time = StringTimeToUnixTime(tokens[4], tokens[5]);
 			rec->filename = UTF8toW(tokens[6]);
+		}else
+		{
+			case '-'://file
+			case 'p'://FIFO	
+				regex = _T("/([\\w-]+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+([\\w-]+(?=\\s))\\s+([\\w:]+(?=\\s))\\s(.+)$/");
+				RegExTokenize(sLine, regex, tokens);
+				if (tokens.GetSize() == 7)
+				{
+					rec = new CFileRecord;
+					rec->attr = StringToAttr(tokens[0]);
+					rec->owner = tokens[1];
+					rec->grp = tokens[2];
+					rec->size = _ttoi(tokens[3]);
+					rec->time = StringTimeToUnixTime(tokens[4], tokens[5]);
+					rec->filename = UTF8toW(tokens[6]);
+				}
+				else
+				{
+					regex = _T("/([\\w-]+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+([\\w-]+(?=\\s))\\s+([\\w:]+(?=\\s))\\s(.+)$/");
+					RegExTokenize(sLine, regex, tokens);
+					if (tokens.GetSize() == 6)
+					{
+						rec = new CFileRecord;
+						rec->attr = StringToAttr(tokens[0]);
+						rec->owner = tokens[1];
+						rec->grp = tokens[2];
+						rec->size = 0;
+						rec->time = StringTimeToUnixTime(tokens[3], tokens[4]);
+						rec->filename = UTF8toW(tokens[5]);
+					}
+				}
 		}
-		break;
+		break;	
 	}
 
 	if (rec)
