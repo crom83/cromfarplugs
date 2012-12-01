@@ -589,6 +589,93 @@ void fardroid::PreparePanel( OpenPluginInfo *Info )
 	Info->InfoLinesNumber = len;
 }
 
+void fardroid::ChangePermissionsDialog()
+{
+	if(conf.WorkMode != WORKMODE_NATIVE)
+	{
+	    CString msg;
+		msg.Format(L"%s\n%s\n%s", GetMsg(MWarningTitle), GetMsg(MOnlyNative), GetMsg(MOk));	
+		int res = ShowMessage(msg, 1, NULL, true);
+		return;
+	}
+
+	CString CurrentDir = GetPanelPath(false);
+	CString CurrentFileName = GetCurrentFileName(false);
+	CString CurrentFullFileName = CString(_T("/")) + CurrentDir + _T("/") + CurrentFileName;
+
+	CString permissions_str = fardroid::GetPermissionsFile(CurrentFullFileName);
+
+	struct InitDialogItem InitItems[]={
+		/*00*/FDI_DOUBLEBOX     (47, 21, _T("Permissions of File")),
+		/*01*/FDI_LABEL         ( 2,  2, _T("File Name: ")),
+		/*02*/FDI_LABEL         ( 2,  3, _T("File attribute: ")),
+
+		/*03*/FDI_LABEL         ( 5,  5, _T("          R   W   X")),
+		/*04*/FDI_LABEL         ( 5,  6, _T("Owner :")),
+		/*05*/FDI_LABEL         ( 5,  7, _T("Group :")),
+		/*06*/FDI_LABEL         ( 5,  8, _T("Others:")),
+
+		/*07*/FDI_CHECK			( 14,  6, _T("") ),
+		/*08*/FDI_CHECK			( 14,  7, _T("") ),
+		/*09*/FDI_CHECK			( 14,  8, _T("") ),
+
+		/*10*/FDI_CHECK			( 18,  6, _T("") ),
+		/*11*/FDI_CHECK			( 18,  7, _T("") ),
+		/*12*/FDI_CHECK			( 18,  8, _T("") ),
+
+		/*13*/FDI_CHECK			( 22,  6, _T("") ),
+		/*14*/FDI_CHECK			( 22,  7, _T("") ),
+		/*15*/FDI_CHECK			( 22,  8, _T("") ),
+
+		/*16*/FDI_DEFCBUTTON    (10, _T("Set")),
+		/*17*/FDI_CBUTTON		(10,(farStr *)MCancel)
+
+	};
+
+	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+	InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+	
+	CString LabelTxt1 = _T("File Name: ") + CurrentFileName;
+	DialogItems[1].PtrData = LabelTxt1;
+	CString LabelTxt2 = _T("File attribute: ") + permissions_str;
+	DialogItems[2].PtrData = LabelTxt2;
+
+	DialogItems[7].Selected  = (permissions_str[1] != _T('-'));
+	DialogItems[10].Selected  = (permissions_str[2] != _T('-'));
+	DialogItems[13].Selected = (permissions_str[3] != _T('-'));
+
+	DialogItems[8].Selected  = (permissions_str[4] != _T('-'));
+	DialogItems[11].Selected  = (permissions_str[5] != _T('-'));
+	DialogItems[14].Selected = (permissions_str[6] != _T('-'));
+		
+	DialogItems[9].Selected  = (permissions_str[7] != _T('-'));
+	DialogItems[12].Selected = (permissions_str[8] != _T('-'));
+	DialogItems[15].Selected = (permissions_str[9] != _T('-'));
+
+	HANDLE hdlg;
+
+	int res = ShowDialog( (LabelTxt1.GetLength() > 34)?LabelTxt1.GetLength()+2:36, 13, NULL, DialogItems, sizeof(InitItems)/sizeof(InitItems[0]), hdlg);
+	if (res == 16)
+	{
+		
+		permissions_str.SetAt(1, GetItemSelected(hdlg, 7)? _T('r'):_T('-'));
+		permissions_str.SetAt(2, GetItemSelected(hdlg, 10)? _T('w'):_T('-'));
+		permissions_str.SetAt(3, GetItemSelected(hdlg, 13)? _T('x'):_T('-'));
+
+  	    permissions_str.SetAt(4, GetItemSelected(hdlg, 8)? _T('r'):_T('-'));
+		permissions_str.SetAt(5, GetItemSelected(hdlg, 11)? _T('w'):_T('-'));
+		permissions_str.SetAt(6, GetItemSelected(hdlg, 14)? _T('x'):_T('-'));
+
+  	    permissions_str.SetAt(7, GetItemSelected(hdlg, 9)? _T('r'):_T('-'));
+		permissions_str.SetAt(8, GetItemSelected(hdlg, 12)? _T('w'):_T('-'));
+		permissions_str.SetAt(9, GetItemSelected(hdlg, 15)? _T('x'):_T('-'));
+
+		SetPermissionsFile(CurrentFullFileName, permissions_str);
+	}
+	fInfo.DialogFree(hdlg);
+
+} 
+
 bool fardroid::CopyFileDialog( CString &destpath, CString &destname )
 {
 	struct InitDialogItem InitItemsC[]={
@@ -1804,6 +1891,53 @@ void fardroid::GetPartitionsInfo()
 
 	for (int i = 0; i < str.GetSize(); i++)
 		ParsePartitionInfo(str[i]);
+}
+
+CString fardroid::GetPermissionsFile(const CString& FullFileName)
+{
+	    CString permissions;
+		CString s;
+		CString sRes;
+		s.Format(_T("ls -l -a -d \"%s\""), FullFileName);
+		if(ADBShellExecute(s, sRes, false))
+		{
+			strvec lines;
+			Tokenize(sRes, lines, _T(" "));
+
+			if(!sRes.IsEmpty() && 
+				sRes.Find(_T("No such file or directory"))== -1 && 
+				lines[0].GetLength() == 10)
+			{
+				permissions = lines[0];
+			}
+		}		
+		return permissions;
+}
+
+CString fardroid::PermissionsFileToMask(CString Permission)
+{
+	CString permission_mask, tmp_str;
+
+	Permission.Replace(_T('-'),_T('0'));
+	Permission.Replace(_T('r'),_T('1'));
+	Permission.Replace(_T('w'),_T('1'));
+	Permission.Replace(_T('x'),_T('1'));
+	
+	permission_mask.Format(_T("%d"),_tcstoul(Permission.Mid(1,3).GetBuffer(11),0,2));
+	tmp_str.Format(_T("%d"),_tcstoul(Permission.Mid(4,3).GetBuffer(11),0,2));
+	permission_mask += tmp_str;
+	tmp_str.Format(_T("%d"),_tcstoul(Permission.Mid(7,3).GetBuffer(11),0,2));
+	permission_mask += tmp_str;
+
+	return permission_mask;
+}
+
+bool fardroid::SetPermissionsFile(const CString& FullFileName, const CString& PermissionsFile)
+{
+	CString s;
+	CString sRes;
+	s.Format(_T("chmod %s \"%s\""), fardroid::PermissionsFileToMask(PermissionsFile), FullFileName);
+	return (ADBShellExecute(s, sRes, false) != FALSE);
 }
 
 bool fardroid::DeviceTest()

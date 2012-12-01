@@ -277,6 +277,16 @@ int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlSta
 			return TRUE;
 		}
 		return FALSE;
+
+	case (PKF_CONTROL|PKF_SHIFT):
+		if(Key == VK_F9)
+		{
+			// Вызываем диалог изменения прав доступа для файлов или директорий
+			android->ChangePermissionsDialog();
+			return TRUE;
+		}
+		return FALSE;
+
 	case (PKF_SHIFT):
 		return FALSE;
 	case (PKF_ALT):

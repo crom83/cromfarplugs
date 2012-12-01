@@ -53,3 +53,6 @@
 
 "Memory Info"
 "Filesystems Info"
+
+"Warning"
+"This operation is available only to Native Mode"

@@ -252,6 +252,10 @@ private:
 	void ParsePartitionInfo(CString s);
 	void GetPartitionsInfo();
 	int UpdateInfoLines();
+	CString GetPermissionsFile(const CString& FullFileName);
+	CString PermissionsFileToMask(CString Permission);
+	bool SetPermissionsFile(const CString& FullFileName, const CString& PermissionsFile);
+
 
 	bool GetFrameBuffer(LPCTSTR sDest);
 public:
@@ -275,6 +279,7 @@ public:
 	bool		DeleteFile(const CString& name, bool bSilent);
 	void		DeleteRecords(CFileRecords & recs);
 	void		PreparePanel(OpenPluginInfo *Info);
+	void		ChangePermissionsDialog();
 
 	int GetFindData(struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 	void FreeFindData(struct PluginPanelItem *PanelItem,int ItemsNumber);

@@ -55,6 +55,9 @@ enum
 
 	MMemoryInfo,
 	MPartitionsInfo,
+
+	MWarningTitle,
+	MOnlyNative,
 };
 
 #endif
