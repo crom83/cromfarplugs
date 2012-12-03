@@ -603,12 +603,12 @@ void fardroid::ChangePermissionsDialog()
 	CString CurrentFileName = GetCurrentFileName(false);
 	CString CurrentFullFileName = CString(_T("/")) + CurrentDir + _T("/") + CurrentFileName;
 
-	CString permissions_str = fardroid::GetPermissionsFile(CurrentFullFileName);
+	CString permissions = GetPermissionsFile(CurrentFullFileName);
 
 	struct InitDialogItem InitItems[]={
-		/*00*/FDI_DOUBLEBOX     (47, 21, _T("Permissions of File")),
-		/*01*/FDI_LABEL         ( 2,  2, _T("File Name: ")),
-		/*02*/FDI_LABEL         ( 2,  3, _T("File attribute: ")),
+		/*00*/FDI_DOUBLEBOX     (47, 21, (farStr *)MPermTitle),
+		/*01*/FDI_LABEL         ( 2, 2,  (farStr *)MPermFileName),
+		/*02*/FDI_LABEL         ( 2, 3,  (farStr *)MPermFileAttr),
 
 		/*03*/FDI_LABEL         ( 5,  5, _T("          R   W   X")),
 		/*04*/FDI_LABEL         ( 5,  6, _T("Owner :")),
@@ -635,22 +635,22 @@ void fardroid::ChangePermissionsDialog()
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
 	InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
 	
-	CString LabelTxt1 = _T("File Name: ") + CurrentFileName;
+	CString LabelTxt1 = GetMsg(MPermFileName) + CurrentFileName;
 	DialogItems[1].PtrData = LabelTxt1;
-	CString LabelTxt2 = _T("File attribute: ") + permissions_str;
+	CString LabelTxt2 = GetMsg(MPermFileAttr) + permissions;
 	DialogItems[2].PtrData = LabelTxt2;
 
-	DialogItems[7].Selected  = (permissions_str[1] != _T('-'));
-	DialogItems[10].Selected  = (permissions_str[2] != _T('-'));
-	DialogItems[13].Selected = (permissions_str[3] != _T('-'));
+	DialogItems[7].Selected  = (permissions[1] != _T('-'));
+	DialogItems[10].Selected = (permissions[2] != _T('-'));
+	DialogItems[13].Selected = (permissions[3] != _T('-'));
 
-	DialogItems[8].Selected  = (permissions_str[4] != _T('-'));
-	DialogItems[11].Selected  = (permissions_str[5] != _T('-'));
-	DialogItems[14].Selected = (permissions_str[6] != _T('-'));
+	DialogItems[8].Selected  = (permissions[4] != _T('-'));
+	DialogItems[11].Selected = (permissions[5] != _T('-'));
+	DialogItems[14].Selected = (permissions[6] != _T('-'));
 		
-	DialogItems[9].Selected  = (permissions_str[7] != _T('-'));
-	DialogItems[12].Selected = (permissions_str[8] != _T('-'));
-	DialogItems[15].Selected = (permissions_str[9] != _T('-'));
+	DialogItems[9].Selected  = (permissions[7] != _T('-'));
+	DialogItems[12].Selected = (permissions[8] != _T('-'));
+	DialogItems[15].Selected = (permissions[9] != _T('-'));
 
 	HANDLE hdlg;
 
@@ -658,19 +658,28 @@ void fardroid::ChangePermissionsDialog()
 	if (res == 16)
 	{
 		
-		permissions_str.SetAt(1, GetItemSelected(hdlg, 7)? _T('r'):_T('-'));
-		permissions_str.SetAt(2, GetItemSelected(hdlg, 10)? _T('w'):_T('-'));
-		permissions_str.SetAt(3, GetItemSelected(hdlg, 13)? _T('x'):_T('-'));
+		permissions.SetAt(1, GetItemSelected(hdlg, 7)? _T('r'):_T('-'));
+		permissions.SetAt(2, GetItemSelected(hdlg, 10)? _T('w'):_T('-'));
+		permissions.SetAt(3, GetItemSelected(hdlg, 13)? _T('x'):_T('-'));
 
-  	    permissions_str.SetAt(4, GetItemSelected(hdlg, 8)? _T('r'):_T('-'));
-		permissions_str.SetAt(5, GetItemSelected(hdlg, 11)? _T('w'):_T('-'));
-		permissions_str.SetAt(6, GetItemSelected(hdlg, 14)? _T('x'):_T('-'));
+		permissions.SetAt(4, GetItemSelected(hdlg, 8)? _T('r'):_T('-'));
+		permissions.SetAt(5, GetItemSelected(hdlg, 11)? _T('w'):_T('-'));
+		permissions.SetAt(6, GetItemSelected(hdlg, 14)? _T('x'):_T('-'));
 
-  	    permissions_str.SetAt(7, GetItemSelected(hdlg, 9)? _T('r'):_T('-'));
-		permissions_str.SetAt(8, GetItemSelected(hdlg, 12)? _T('w'):_T('-'));
-		permissions_str.SetAt(9, GetItemSelected(hdlg, 15)? _T('x'):_T('-'));
+		permissions.SetAt(7, GetItemSelected(hdlg, 9)? _T('r'):_T('-'));
+		permissions.SetAt(8, GetItemSelected(hdlg, 12)? _T('w'):_T('-'));
+		permissions.SetAt(9, GetItemSelected(hdlg, 15)? _T('x'):_T('-'));
 
-		SetPermissionsFile(CurrentFullFileName, permissions_str);
+		SetPermissionsFile(CurrentFullFileName, permissions);
+
+		CString permissions_chk = GetPermissionsFile(CurrentFullFileName);
+
+		if(permissions_chk != permissions)
+		{
+			CString msg;
+			msg.Format(L"%s\n%s\n%s", GetMsg(MWarningTitle), GetMsg(MSetPermFail), GetMsg(MOk));	
+			int res = ShowMessage(msg, 1, NULL, true);
+		}
 	}
 	fInfo.DialogFree(hdlg);
 

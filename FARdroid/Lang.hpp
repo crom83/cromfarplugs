@@ -58,6 +58,10 @@ enum
 
 	MWarningTitle,
 	MOnlyNative,
+	MSetPermFail,
+	MPermTitle,
+	MPermFileName,
+	MPermFileAttr,
 };
 
 #endif

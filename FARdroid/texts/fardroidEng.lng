@@ -56,3 +56,7 @@
 
 "Warning"
 "This operation is available only to Native Mode"
+"Permissions change was not successful.\nPlease note that some file system (e.g. SD card)\ndo not allow permission changes."
+"Permissions of File"
+"File Name:  "
+"File attribute:  "
