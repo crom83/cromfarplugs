@@ -62,6 +62,10 @@ enum
 	MPermTitle,
 	MPermFileName,
 	MPermFileAttr,
+
+	MNeedFolderExePerm,
+	MNeedSuperuserPerm, 
+	MNeedNativeSuperuserPerm,
 };
 
 #endif

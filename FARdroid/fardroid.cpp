@@ -341,16 +341,63 @@ bool fardroid::CopyFileFrom(const CString& src, const CString& dst, bool &noProm
 
 	CString sRes;
 repeatcopy:
+	// "adb.exe pull" в принципе не может читать файл с устройства с правами Superuser.
+	// Если у файла не установлены права доступа на чтения для простых пользователей,
+	// то файл не будет прочитан. 
+
+	// Чтобы такие файлы все же прочитать, добавим к правам доступа файла, право на чтение
+	// для простых пользователей. А затем вернем оригинальные права доступа к файлу.
+	// Этот работает только в Native Mode с включенным Superuser
+
+	// Добавляем к правам доступа файла право на чтение для всех пользователей.
+	CString old_permissions;
+	if(conf.WorkMode == WORKMODE_NATIVE)
+	{
+		old_permissions = GetPermissionsFile(src);
+	
+		if(!old_permissions.IsEmpty())
+		{
+			CString new_permissions = old_permissions;
+			new_permissions.SetAt(new_permissions.GetLength()-3, _T('r'));
+
+			SetPermissionsFile(src, new_permissions);
+		}
+	}
+
+	// Читаем файл
 	BOOL res = ADB_pull(src, dst, sRes, bSilent);
+
+	// Восстановим оригинальные права на файл
+	if(conf.WorkMode == WORKMODE_NATIVE)
+	{	
+		if(!old_permissions.IsEmpty())
+			SetPermissionsFile(src, old_permissions);
+	}
+
+
 	if (!res)
 	{
-		if (bSilent)//если отключен вывод на экран, то просто возвращаем что все ОК
-			return true;
+		// Silent предполагает не задавать пользователю лишних вопросов. 
+		//        Но сообщения об ошибках нужно все же выводить.
+		//   if (bSilent)//если отключен вывод на экран, то просто возвращаем что все ОК
+		//	    return true;
+
+		if(conf.WorkMode == WORKMODE_NATIVE)
+		{
+			if(!sRes.IsEmpty()) sRes += _T("\n");
+			sRes += (conf.UseSU)? GetMsg(MNeedFolderExePerm): GetMsg(MNeedSuperuserPerm);
+		}
+		else
+		{
+			if(!sRes.IsEmpty()) sRes += _T("\n");
+			sRes +=  GetMsg(MNeedNativeSuperuserPerm);
+		}
 
 		int ret = CopyErrorDialog(GetMsg(MGetFile), sRes);
 		switch(ret)
 		{
 		case 0:
+			sRes = _T("");
 			goto repeatcopy;
 		case 1:
 			return true;
@@ -366,16 +413,62 @@ bool fardroid::CopyFileTo(const CString& src, const CString& dst, bool &noPromt,
 {
 	CString sRes;
 repeatcopy:
+	// "adb.exe push" в принципе не может перезаписывать файл в устройстве с правами Superuser.
+	// Если у файла не установлены прав доступа на запись для простых пользователей,
+	// то файл не будет перезаписан. (т.е. например? после редактирования файл нельзя будет сохранить)
+
+	// Чтобы такие файлы все же перезаписать, добавим к правам доступа файла, право на запись
+	// для простых пользователей. А затем вернем оригинальные права доступа к файлу.
+	// Этот работает только в Native Mode с включенным Superuser
+
+	// Добавляем к правам доступа файла право на запись для всех пользователей.	
+	CString old_permissions;
+	if(conf.WorkMode == WORKMODE_NATIVE)
+	{
+		old_permissions = GetPermissionsFile(dst);
+	
+		if(!old_permissions.IsEmpty())
+		{
+			CString new_permissions = old_permissions;
+			new_permissions.SetAt(new_permissions.GetLength()-2, _T('w'));
+
+			SetPermissionsFile(dst, new_permissions);
+		}
+	}
+
+	// Запись файла
 	BOOL res = ADB_push(src, dst, sRes, bSilent);
+
+	// Восстановим оригинальные права на файл
+	if(conf.WorkMode == WORKMODE_NATIVE)
+	{	
+		if(!old_permissions.IsEmpty())
+			SetPermissionsFile(dst, old_permissions);
+	}
+
 	if (!res)
 	{
-		if (bSilent)//если отключен вывод на экран, то просто возвращаем что все ОК
-			return true;
+		// Silent предполагает не задавать пользователю лишних вопросов. 
+		//        Но сообщения об ошибках нужно все же выводить.
+		//  if (bSilent) //если отключен вывод на экран, то просто возвращаем что все ОК
+		//	   return true;
+
+		if(conf.WorkMode == WORKMODE_NATIVE)
+		{
+			if(!sRes.IsEmpty()) sRes += _T("\n");
+			sRes += (conf.UseSU)? GetMsg(MNeedFolderExePerm): GetMsg(MNeedSuperuserPerm);
+		}
+		else
+		{
+			if(!sRes.IsEmpty()) sRes += _T("\n");
+			sRes +=  GetMsg(MNeedNativeSuperuserPerm);
+		}
 
 		int ret = CopyErrorDialog(GetMsg(MPutFile), sRes);
 		switch(ret)
 		{
 		case 0:
+			sRes = _T("");
 			goto repeatcopy;
 		case 1:
 			return true;
@@ -1244,6 +1337,10 @@ BOOL fardroid::ADB_pull( LPCTSTR sSrc, LPCTSTR sDst, CString & sRes, bool bSilen
 			return FALSE;
 		}
 		ADBSyncQuit(sock);
+	}else
+	{
+		CloseADBSocket(sock);
+	    return FALSE;
 	}
 
 	CloseADBSocket(sock);

@@ -60,3 +60,7 @@
 "Permissions of File"
 "File Name:  "
 "File attribute:  "
+
+"It's possible, that a top level folder doesn't have\nthe execute permission for all (others) users.\n\nUse Ctrl+Shift+F9 for check it."
+"For this operation the Superuser permissions may be need."
+"For this operation the Native mode and the Superuser permissions may be need."
