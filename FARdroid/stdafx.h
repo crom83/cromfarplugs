@@ -45,7 +45,7 @@ typedef CSortedArray<int, int&> simpvec;
 #include "includes\FARUnicode\eplugin.hpp"
 #include "includes\FARUnicode\plugin.hpp"
 #include "includes\FARUnicode\farcolor.hpp"
-#include "includes\FARUnicode\farkeys.hpp"
+
 #define _F(x)     L ## x
 #define farStr wchar_t
 #define lstrlenF lstrlenW
@@ -55,7 +55,6 @@ typedef CSortedArray<int, int&> simpvec;
 
 #define _C(x)      (wchar_t*)(LPCTSTR)##x
 
-//#include <math.h>
 
 #include "version.info"
 
@@ -74,15 +73,24 @@ typedef CSortedArray<int, int&> simpvec;
 #include "mystr.h"
 #include "stuffs.h"
 #include "FARstuffs.h"
-#include "reg.hpp"
 #include "Config.h"
 
 #include "fardroid.h"
 
 extern PluginStartupInfo fInfo;
 extern FarStandardFunctions FSF;
-extern BOOL IsOldFAR;
 extern HMODULE hInst;
 extern CConfig conf;
 
 extern struct KeyBarTitles KeyBar;
+#include <initguid.h>
+// {B4C0E3A4-E340-4931-8951-ED2EE3846FA0}
+DEFINE_GUID(MainGuid, 0xb4c0e3a4, 0xe340, 0x4931, 0x89, 0x51, 0xed, 0x2e, 0xe3, 0x84, 0x6f, 0xa0);
+// {430613E6-CEB0-4c2a-BFD6-E0526B3D452F}
+DEFINE_GUID(MsgGuid, 0x430613e6, 0xceb0, 0x4c2a, 0xbf, 0xd6, 0xe0, 0x52, 0x6b, 0x3d, 0x45, 0x2f);
+// {7C5EE147-FB83-477b-91D8-731F5C563C32}
+DEFINE_GUID(MsgWaitGuid, 0x7c5ee147, 0xfb83, 0x477b, 0x91, 0xd8, 0x73, 0x1f, 0x5c, 0x56, 0x3c, 0x32);
+// {28E513F6-E9EF-4a85-9B95-6AB129B04492}
+DEFINE_GUID(DialogGuid, 0x28e513f6, 0xe9ef, 0x4a85, 0x9b, 0x95, 0x6a, 0xb1, 0x29, 0xb0, 0x44, 0x92);
+// {D63502EB-0081-4dc3-B203-564959CC3194}
+DEFINE_GUID(MenuGuid, 0xd63502eb, 0x81, 0x4dc3, 0xb2, 0x3, 0x56, 0x49, 0x59, 0xcc, 0x31, 0x94);

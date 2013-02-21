@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "fardroidPlugin.h"
 
-
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
 	switch (ul_reason_for_call)
@@ -22,38 +21,43 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 	return TRUE;
 }
 
-void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-	IsOldFAR = TRUE;
+	Info->StructSize=sizeof(struct GlobalInfo);
+	Info->MinFarVersion=MAKEFARVERSION(3,0,0,3000,VS_RELEASE); 
+	Info->Version=MAKEFARVERSION(1,0,0,43,VS_RC);
+	Info->Guid=MainGuid;
+	Info->Title=L"FARdroid";
+	Info->Description=L"fardroid FAR Plugin";
+	Info->Author=L"Vladimir Kubyshev";
+}
+
+void   WINAPI  SetStartupInfoW(const struct PluginStartupInfo *Info)
+{
 	if(Info->StructSize >= sizeof(struct PluginStartupInfo))
 	{
 		fInfo = *Info;
 		FSF = *Info->FSF;
 		fInfo.FSF = &FSF;
-		IsOldFAR = FALSE;
-
-		conf.SetPaths(fInfo.ModuleName);
-		conf.Load(fInfo.RootKey);
+		conf.Load();
 	}
 }
-void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info)
+void   WINAPI  GetPluginInfoW(struct PluginInfo *Info)
 {
 	Info->StructSize = sizeof(PluginInfo);
-
-	if(IsOldFAR)
-		return;
-
 	Info->Flags=0;
 
 	static const wchar_t * PluginConfigMenuStrings[1], *PluginMenuStrings[1];
 
 	PluginConfigMenuStrings[0]=GetMsg(MConfTitle);
-	Info->PluginConfigStrings=PluginConfigMenuStrings;
-	Info->PluginConfigStringsNumber = 1;
+	Info->PluginConfig.Strings=PluginConfigMenuStrings;
+	Info->PluginConfig.Count = 1;
+	Info->PluginConfig.Guids = &MenuGuid;
 
 	PluginMenuStrings[0]=GetMsg(MTitle);
-	Info->PluginMenuStrings=PluginMenuStrings;
-	Info->PluginMenuStringsNumber = 1;
+	Info->PluginMenu.Strings=PluginMenuStrings;
+	Info->PluginMenu.Count = 1;
+	Info->PluginMenu.Guids = &MenuGuid;
 
 	Info->CommandPrefix= _C(conf.Prefix);
 
@@ -64,25 +68,24 @@ void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info)
 	DiskMenuNumber[0] = conf.HotKeyInDisk;
 	if (conf.AddToDiskMenu)
 	{
-		Info->DiskMenuStrings = DiskMenuString;
-		Info->DiskMenuNumbers = DiskMenuNumber;
-		Info->DiskMenuStringsNumber = 1;
+		Info->DiskMenu.Strings = DiskMenuString;
+		Info->DiskMenu.Count = 1;
+		Info->DiskMenu.Guids = &MenuGuid;
 	}
 	else
 	{
-		Info->DiskMenuStrings = 0;
-		Info->DiskMenuNumbers = 0;
-		Info->DiskMenuStringsNumber = 0;
+		Info->DiskMenu.Strings = 0;
+		Info->DiskMenu.Count = 0;
+		Info->DiskMenu.Guids = 0;
 	}
 }
-HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
-{
-	if(IsOldFAR)
-		return INVALID_HANDLE_VALUE;
 
-	switch(OpenFrom)
+HANDLE WINAPI OpenW(const struct OpenInfo *Info)
+{
+	switch(Info->OpenFrom)
 	{
-		case OPEN_DISKMENU: 
+		case OPEN_LEFTDISKMENU: 
+		case OPEN_RIGHTDISKMENU: 
 		case OPEN_PLUGINSMENU: 
 			{
 				fardroid * android = new fardroid();
@@ -104,7 +107,7 @@ HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
 				if (android)
 				{
 					HANDLE res = INVALID_HANDLE_VALUE;
-					CString cmd = (const wchar_t*)Item;
+					CString cmd = reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine;
 					res = android->OpenFromCommandLine(cmd);
 					if (res == INVALID_HANDLE_VALUE)
 						delete android;
@@ -116,18 +119,17 @@ HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
 	}
 	return INVALID_HANDLE_VALUE;
 }
-void   WINAPI _export ClosePluginW(HANDLE hPlugin)
+
+void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return;
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 	delete android;
 }
-int    WINAPI _export ConfigureW(int ItemNumber)
-{
-	if(IsOldFAR)
-		return FALSE;
 
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
+{
 	struct InitDialogItem InitItems[]={
 		/*00*/FDI_DOUBLEBOX (47,21,(farStr *)MConfTitle),
 		/*01*/FDI_CHECK			( 2, 2,(farStr *)MConfAddToDisk),
@@ -157,11 +159,11 @@ int    WINAPI _export ConfigureW(int ItemNumber)
 
 	wchar_t * editbuf1 = (wchar_t *)my_malloc(100);
 	FSF.sprintf(editbuf1, L"%d",conf.HotKeyInDisk);
-	DialogItems[2].PtrData = editbuf1;
+	DialogItems[2].Data = editbuf1;
 
 	wchar_t * editbuf2 = (wchar_t *)my_malloc(100);
 	lstrcpyW(editbuf2, conf.Prefix);
-	DialogItems[5].PtrData = editbuf2;
+	DialogItems[5].Data = editbuf2;
 
 	DialogItems[6].Selected = conf.WorkMode == WORKMODE_SAFE;
 	DialogItems[7].Selected = conf.WorkMode == WORKMODE_NATIVE;
@@ -173,11 +175,11 @@ int    WINAPI _export ConfigureW(int ItemNumber)
 
 	wchar_t * editbuf3 = (wchar_t *)my_malloc(100);
 	FSF.sprintf(editbuf3, L"%d", conf.TimeOut);
-	DialogItems[14].PtrData = editbuf3;
+	DialogItems[14].Data = editbuf3;
 
 	wchar_t * editbuf4 = (wchar_t *)my_malloc(1024);
 	lstrcpyW(editbuf4, conf.ADBPath);
-	DialogItems[16].PtrData = editbuf4;
+	DialogItems[16].Data = editbuf4;
 
 	HANDLE hdlg;
 
@@ -214,16 +216,18 @@ int    WINAPI _export ConfigureW(int ItemNumber)
 
 	return res == 17;
 }
-void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info)
+
+void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return;
 
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 	Info->StructSize=sizeof(*Info);
-	Info->Flags = OPIF_USEFILTER|OPIF_USEHIGHLIGHTING|OPIF_ADDDOTS|OPIF_SHOWPRESERVECASE|OPIF_USESORTGROUPS;
+	Info->Flags = OPIF_ADDDOTS | OPIF_SHOWPRESERVECASE;
 
-	Info->StartSortMode = conf.SortMode;
+	Info->StartSortMode = (OPENPANELINFO_SORTMODES)	conf.SortMode;
 	Info->StartSortOrder = conf.SortOrder;
 
 	Info->CurDir = NULL;
@@ -240,75 +244,72 @@ void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *I
 
 	Info->KeyBar=&KeyBar;
 }
-int    WINAPI _export GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 
-	return android->GetFindData(pPanelItem, pItemsNumber, OpMode);
+	return android->GetFindData(&Info->PanelItem, &Info->ItemsNumber, (int)Info->OpMode);
 }
-void   WINAPI _export FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
+void     WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return;
 
-	fardroid * android = (fardroid *)hPlugin;
-	android->FreeFindData(PanelItem, ItemsNumber);
+	fardroid * android = (fardroid *)Info->hPanel;
+	
+	android->FreeFindData(Info->PanelItem, Info->ItemsNumber);
 }
-int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState)
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
+	
+	if(Info->Rec.EventType != KEY_EVENT) return FALSE;
 
-	if (Key & PKF_PREPROCESS) return FALSE;
-
-	switch (ControlState)
+	DWORD dwControl = Info->Rec.Event.KeyEvent.dwControlKeyState;
+	DWORD dwCTRL = dwControl & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED);
+	DWORD dwALT  = dwControl & (LEFT_ALT_PRESSED  | RIGHT_ALT_PRESSED);
+	DWORD dwSHIFT  = dwControl & SHIFT_PRESSED;
+	if(dwALT || (dwCTRL==0)) return FALSE;
+	if(dwSHIFT == 0)
 	{
-	case (PKF_CONTROL):
-		if(Key == _F('R'))
+		if(Info->Rec.Event.KeyEvent.wVirtualKeyCode == 0x52 /* VK_R */)
 		{
 			android->Reread();
-			fInfo.Control(hPlugin, FCTL_UPDATEPANEL, 1, NULL);
-			fInfo.Control(hPlugin, FCTL_REDRAWPANEL, 0, NULL);
+			fInfo.PanelControl(Info->hPanel, FCTL_UPDATEPANEL, 1, NULL);
+			fInfo.PanelControl(Info->hPanel, FCTL_REDRAWPANEL, 0, NULL);
 			return TRUE;
 		}
-		return FALSE;
-
-	case (PKF_CONTROL|PKF_SHIFT):
-		if(Key == VK_F9)
+	}
+	else
+	{
+		if(Info->Rec.Event.KeyEvent.wVirtualKeyCode == VK_F9)
 		{
 			// Вызываем диалог изменения прав доступа для файлов или директорий
 			android->ChangePermissionsDialog();
 			return TRUE;
 		}
-		return FALSE;
-
-	case (PKF_SHIFT):
-		return FALSE;
-	case (PKF_ALT):
-		return FALSE;
-	case (PKF_ALT|PKF_SHIFT):
-		return FALSE;
-	default:
-		return FALSE;
 	}
 	return FALSE;
 }
-int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param)
+intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	switch(Event)
+	switch(Info->Event)
 	{
 	case FE_CLOSE:
 
 		PanelInfo PInfo;
-		fInfo.Control(hPlugin, FCTL_GETPANELINFO, 0, (LONG_PTR)&PInfo);
+		fInfo.PanelControl(Info->hPanel, FCTL_GETPANELINFO, 0, (void *)&PInfo);
 		conf.SortMode = PInfo.SortMode;
 		conf.PanelMode = PInfo.ViewMode;
 		conf.SortOrder = IS_FLAG(PInfo.Flags, PFLAGS_REVERSESORTORDER);
@@ -319,78 +320,76 @@ int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param)
 
 	return FALSE;
 }
-int WINAPI _export GetMinFarVersionW(void)
+
+intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 {
-	return MAKEFARVERSION(2,0,756);//тут был breaking change
-}
-int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode)
-{
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 	static CString dest;
-	dest = *DestPath;
-	if (!android->GetFiles(PanelItem, ItemsNumber, dest, Move, OpMode))
+	dest = Info->DestPath;
+	if (!android->GetFiles(Info->PanelItem, Info->ItemsNumber, dest, Info->Move,  (int)Info->OpMode))
 		return FALSE;
 
-	if (Move)
+	if (Info->Move)
 	{
 		//после удачного копирования удалим файлы
-		OpMode |= OPM_SILENT;
-		if (!android->DeleteFiles(PanelItem, ItemsNumber, OpMode))
+		Info->OpMode |= OPM_SILENT;
+		if (!android->DeleteFiles(Info->PanelItem, Info->ItemsNumber, (int)Info->OpMode))
 			return FALSE;
 	}
-	*DestPath = _C(dest);
+	Info->DestPath = _C(dest);
 
 	return TRUE;
 }
 
-int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode)
+intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 	if (android)
-		return android->ChangeDir(Dir, OpMode);
+		return android->ChangeDir(Info->Dir, (int)Info->OpMode);
 	return FALSE;
 }
 
-int    WINAPI _export PutFilesW( HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode )
+intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
-	if (!android->PutFiles(PanelItem, ItemsNumber, SrcPath, Move, OpMode))
+	fardroid * android = (fardroid *)Info->hPanel;
+	if (!android->PutFiles(Info->PanelItem, Info->ItemsNumber, Info->SrcPath, Info->Move, (int)Info->OpMode))
 		return FALSE;
 
-	if (Move)
+	if (Info->Move)
 	{
 		CString sPath = GetPanelPath();
-		return DeletePanelItems(sPath, PanelItem, ItemsNumber);
+		return DeletePanelItems(sPath, Info->PanelItem, Info->ItemsNumber);
 	}
 	return TRUE;
 }
 
-int    WINAPI _export DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode)
+intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
-	return android->DeleteFiles(PanelItem, ItemsNumber, OpMode);
+	fardroid * android = (fardroid *)Info->hPanel;
+	return android->DeleteFiles(Info->PanelItem, Info->ItemsNumber, (int)Info->OpMode);
 }
-int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode)
+
+intptr_t WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info)
 {
-	if(IsOldFAR || !hPlugin)
+	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return FALSE;
 
-	fardroid * android = (fardroid *)hPlugin;
+	fardroid * android = (fardroid *)Info->hPanel;
 
 	static CString dest;
-	dest = *Name;
-	if (!android->CreateDir(dest, OpMode))
+	dest = Info->Name;
+	if (!android->CreateDir(dest, (int)Info->OpMode))
 		return FALSE;
-	*Name = _C(dest);
+	Info->Name = _C(dest);
 
 	return TRUE;
 }

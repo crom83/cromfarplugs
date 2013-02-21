@@ -38,7 +38,6 @@ void Editor(const CString& filename, const farStr* title);
 int ShowMenu(const farStr* title, const farStr* bottom, const farStr* help, const FarMenuItem *Item, int ItemsNumber);
 int ShowMenu2(const farStr* title, const farStr* bottom, const farStr* help, const int * keys, int & code, const FarMenuItem *Item, int ItemsNumber);
 
-UINT64 GetPackSize(bool another, bool selected, int i);
 DWORD GetFileAttributes( bool another, bool selected, int i ) ;
 CString GetFileName( bool another, bool selected, int i );
 FarDialogItem * GetFarDialogItem(const HANDLE &hDlg, DWORD item);
@@ -48,11 +47,5 @@ CString GetItemData(const HANDLE &hDlg, DWORD item );
 int ShowDialog(int width, int height, const farStr * help, FarDialogItem * items, int count, HANDLE &hDlg);
 
 CString GetPanelPath( bool another = false );
-bool SendMacro(const CString& macro);
-void CommitOperation();
-bool CheckListBoxItem(const HANDLE &hDlg, int id, int i, bool checked);
-bool ListBoxItemChecked(const HANDLE &hDlg, int id, int i);
-void ExpandEnvironmentStr( const CString & str, CString &expanded);
-
 PluginPanelItem * GetFarPluginPanelItem(HANDLE hPanel, int FCTL, int i );
 CString GetCurrentFileName( bool another = false);

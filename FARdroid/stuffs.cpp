@@ -448,9 +448,9 @@ BOOL DeletePanelItems(CString &sPath, struct PluginPanelItem *PanelItem,int Item
 	CString sName;
 	for (int i = 0; i < ItemsNumber; i++)
 	{
-		sName.Format(_T("%s%s"), sPath, PanelItem[i].FindData.lpwszFileName);
+		sName.Format(_T("%s%s"), sPath, PanelItem[i].FileName);
 
-		if (IsDirectory(PanelItem[i].FindData.dwFileAttributes))
+		if (IsDirectory(PanelItem[i].FileAttributes))
 		{	if (!DeleteDir(sName)) bOk = FALSE;}
 		else
 		{	if (!DeleteFile(sName)) bOk = FALSE;}

@@ -52,7 +52,7 @@ bool fardroid::CopyFilesDialog(CString &dest)
 
 	wchar_t * editbuf = (wchar_t *)my_malloc(100);
 	lstrcpyW(editbuf, _C(dest));
-	DialogItemsC[2].PtrData = editbuf;
+	DialogItemsC[2].Data = editbuf;
 	HANDLE hdlg;
 
 	int res = ShowDialog(55, 9, _F("CopyDialog"), DialogItemsC, sizeof(InitItemsC)/sizeof(InitItemsC[0]), hdlg);
@@ -78,7 +78,7 @@ bool fardroid::CreateDirDialog(CString &dest)
 
 	wchar_t * editbuf = (wchar_t *)my_malloc(100);
 	lstrcpyW(editbuf, _C(dest));
-	DialogItemsC[2].PtrData = editbuf;
+	DialogItemsC[2].Data = editbuf;
 	HANDLE hdlg;
 
 	int res = ShowDialog(55, 9, _F("CreateDirDialog"), DialogItemsC, sizeof(InitItemsC)/sizeof(InitItemsC[0]), hdlg);
@@ -221,8 +221,7 @@ bool fardroid::GetItems(PluginPanelItem *PanelItem, int ItemsNumber, const CStri
 		if (!bSilent && CheckForKey(VK_ESCAPE) && 
 				BreakProcessDialog(GetMsg(MGetFile)))
 			return true;
-
-		CFileRecord * item = records[static_cast<int>(PanelItem[i].FindData.nPackSize)];
+		CFileRecord * item = records[(int)PanelItem[i].UserData.Data];
 		if (item)
 		{
 			CString dstfile = dstdir;
@@ -257,8 +256,8 @@ bool fardroid::PutItems(PluginPanelItem *PanelItem, int ItemsNumber, const CStri
 
 		CString dstfile = dstdir;
 		CString srcfile = srcdir;
-		srcfile += PanelItem[i].FindData.lpwszFileName;
-		dstfile += PanelItem[i].FindData.lpwszFileName;
+		dstfile += PanelItem[i].FileName;
+		srcfile += PanelItem[i].FileName;
 		if (m_procStruct.Lock())
 		{
 			m_procStruct.spos.Format(_T("%s %d/%d"), GetMsg(MProcessed), i, ItemsNumber);
@@ -515,7 +514,7 @@ void fardroid::DeleteRecords(CFileRecords & recs)
 	recs.RemoveAll();
 }
 
-int fardroid::GetFindData( struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode )
+int fardroid::GetFindData( struct PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode )
 {
 	*pPanelItem=NULL;
 	*pItemsNumber=0;
@@ -535,12 +534,12 @@ int fardroid::GetFindData( struct PluginPanelItem **pPanelItem,int *pItemsNumber
 		my_memset(&NewPanelItem[Z],0,sizeof(PluginPanelItem));
 
 		item = records[Z];
-		NewPanelItem[Z].FindData.dwFileAttributes	= item->attr;
-		NewPanelItem[Z].FindData.nPackSize = Z;
-		NewPanelItem[Z].FindData.nFileSize		 = item->size;
-		NewPanelItem[Z].FindData.ftLastWriteTime = UnixTimeToFileTime(item->time);
+		NewPanelItem[Z].FileAttributes	= item->attr;
+		NewPanelItem[Z].UserData.Data = (void *)Z;
+		NewPanelItem[Z].FileSize	 = item->size;
+		NewPanelItem[Z].LastWriteTime = UnixTimeToFileTime(item->time);
 
-		NewPanelItem[Z].FindData.lpwszFileName = my_strdupW(item->filename);
+		NewPanelItem[Z].FileName = my_strdupW(item->filename);
 		NewPanelItem[Z].Owner = my_strdupW(item->owner);
 		NewPanelItem[Z].Description = my_strdupW(item->desc);
 
@@ -557,8 +556,8 @@ void fardroid::FreeFindData( struct PluginPanelItem *PanelItem,int ItemsNumber )
 {
 	for (int I = 0; I < ItemsNumber; I++)
 	{
-		if (PanelItem[I].FindData.lpwszFileName)
-			my_free((void*)PanelItem[I].FindData.lpwszFileName);
+		if (PanelItem[I].FileName)
+			my_free((void*)PanelItem[I].FileName);
 		if (PanelItem[I].Owner)
 			my_free((void*)PanelItem[I].Owner);
 		if (PanelItem[I].Description)
@@ -649,7 +648,7 @@ int fardroid::UpdateInfoLines()
 	return lines.GetSize();
 }
 
-void fardroid::PreparePanel( OpenPluginInfo *Info )
+void fardroid::PreparePanel( OpenPanelInfo *Info )
 {
 	//TODO!!! - сделать динамические массивы
 	Info->HostFile = _C(fileUnderCursor);
@@ -674,7 +673,7 @@ void fardroid::PreparePanel( OpenPluginInfo *Info )
 		{
 			InfoPanelLineArray[i].Text = lines[i].text;
 			InfoPanelLineArray[i].Data = lines[i].data;
-			InfoPanelLineArray[i].Separator = lines[i].separator;
+			InfoPanelLineArray[i].Flags = (lines[i].separator ? IPLFLAGS_SEPARATOR : 0);
 		}
 	}
 
@@ -729,9 +728,9 @@ void fardroid::ChangePermissionsDialog()
 	InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
 	
 	CString LabelTxt1 = GetMsg(MPermFileName) + CurrentFileName;
-	DialogItems[1].PtrData = LabelTxt1;
+	DialogItems[1].Data = LabelTxt1;
 	CString LabelTxt2 = GetMsg(MPermFileAttr) + permissions;
-	DialogItems[2].PtrData = LabelTxt2;
+	DialogItems[2].Data = LabelTxt2;
 
 	DialogItems[7].Selected  = (permissions[1] != _T('-'));
 	DialogItems[10].Selected = (permissions[2] != _T('-'));
@@ -796,8 +795,8 @@ bool fardroid::CopyFileDialog( CString &destpath, CString &destname )
 	wchar_t * editbuf2 = (wchar_t *)my_malloc(100);
 	lstrcpyW(editbuf, _C(destpath));
 	lstrcpyW(editbuf2, _C(destname));
-	DialogItemsC[2].PtrData = editbuf;
-	DialogItemsC[4].PtrData = editbuf2;
+	DialogItemsC[2].Data = editbuf;
+	DialogItemsC[4].Data = editbuf2;
 	HANDLE hdlg;
 
 	int res = ShowDialog(55, 9, _F("CopyDialog2"), DialogItemsC, sizeof(InitItemsC)/sizeof(InitItemsC[0]), hdlg);
@@ -917,6 +916,7 @@ bool fardroid::ADBTransmitFile(SOCKET sockADB, LPCTSTR sFileName, time_t & mtime
 	{
 		m_procStruct.nTransmitted = 0;
 		m_procStruct.nFileSize = GetFileSize(hFile, NULL);
+		m_bForceBreak = false;
 		m_procStruct.Unlock();
 	}
 
@@ -1183,6 +1183,7 @@ BOOL fardroid::ADBPullFile(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &
 	int len;
 	unsigned id;
 
+	m_bForceBreak = false;
 	len = lstrlen(sSrc);
 	if(len > 1024) return FALSE;
 
@@ -1607,7 +1608,8 @@ bool fardroid::ParseFileLineBB( CString & sLine, CFileRecords & files )
 	CFileRecord * rec = NULL;
 	if (sLine.IsEmpty())
 		return true;
-
+	if(sLine.Left(5) == _T("total") || sLine.Left(3) == _T("ls:"))
+		return true;
 	switch (sLine[0])
 	{
 	case 'l'://symlink
@@ -1756,7 +1758,7 @@ bool fardroid::DelItems(PluginPanelItem *PanelItem, int ItemsNumber, bool &noPro
 				BreakProcessDialog(GetMsg(MGetFile)))
 			return true;
 
-		CFileRecord * item = records[static_cast<int>(PanelItem[i].FindData.nPackSize)];
+		CFileRecord * item = records[(int)(PanelItem[i].UserData.Data)];
 		if (item)
 		{
 			CString srcfile = m_currentPath;
@@ -1964,12 +1966,18 @@ void fardroid::ParsePartitionInfo(CString s)
 
 	CString regex = _T("/(.*(?=:)):\\W+(\\w+(?=\\stotal)).+,\\s(\\w+(?=\\savailable))/");
 	RegExTokenize(s, regex, tokens);
+	if (tokens.GetSize() != 3)
+	{
+		regex = _T("/^(\\S+)\\s+(\\d\\S*)\\s+\\S+\\s+(\\d\\S*)/");
+		RegExTokenize(s, regex, tokens);
+	}
 	if (tokens.GetSize() == 3)
 	{
 		pl.text = tokens[0];
 		pl.data.Format(_T("%s/%s"), tokens[1], tokens[2]);
 		lines.Add(pl);
 	}
+
 }
 void fardroid::GetPartitionsInfo()
 {

@@ -6,22 +6,10 @@
 
 PluginStartupInfo fInfo;
 FarStandardFunctions FSF;
-BOOL IsOldFAR;
 HMODULE hInst;
 CConfig conf;
 
-PanelMode PanelModesArray[2];
-const farStr *ColumnTitles1[2];
-const farStr *ColumnTitles2[3];
-
 wchar_t * Permissions = L"Permissions";
-
-struct KeyBarTitles KeyBar={
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//Titles
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//Ctrl
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//Alt
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//Shift
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,Permissions,NULL,NULL,NULL},//CtrlShift
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//AltShift
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},//CtrlAlt
-};
+struct KeyBarLabel Label[2] = {{{VK_F9, SHIFT_PRESSED | LEFT_CTRL_PRESSED}, Permissions, Permissions},
+{{VK_F9, SHIFT_PRESSED | RIGHT_CTRL_PRESSED}, Permissions, Permissions}};
+struct KeyBarTitles KeyBar = {2, Label};

@@ -8,12 +8,9 @@ enum{
 
 class CConfig
 {
-private:
-	BOOL FromReg;
 public:
 	//common
-	CString PluginRootKey;
-	CString ModulePath;
+	HANDLE hHandle;
 	//plugin
 	CString Prefix;
 	CString ADBPath;
@@ -35,8 +32,13 @@ public:
 	CString Mode2CSizes;*/
 	CConfig(void);
 	~CConfig(void);
-	bool Load(CString RootReg);
+	bool InitHandle();
+	void FreeHandle();
+	void Set(const wchar_t* Name, int Value);
+	void Set(const wchar_t* Name, CString &Value);
+	void Get(const wchar_t* Name, int &Value, int Default);
+	void Get(const wchar_t* Name, CString &Value, const wchar_t *Default);
+	bool Load();
 	void Save();
-	void SetPaths(CString ModulePath);
 	BOOL LinksAsDir();
 };

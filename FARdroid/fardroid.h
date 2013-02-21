@@ -278,10 +278,10 @@ public:
 	bool		CopyFileDialog(CString &destpath, CString &destname);
 	bool		DeleteFile(const CString& name, bool bSilent);
 	void		DeleteRecords(CFileRecords & recs);
-	void		PreparePanel(OpenPluginInfo *Info);
+	void		PreparePanel(struct OpenPanelInfo *Info);
 	void		ChangePermissionsDialog();
 
-	int GetFindData(struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+	int GetFindData(struct PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
 	void FreeFindData(struct PluginPanelItem *PanelItem,int ItemsNumber);
 	int GetFiles(PluginPanelItem *PanelItem, int ItemsNumber, CString &DestPath,	BOOL Move, int OpMode);
 	int PutFiles(PluginPanelItem *PanelItem, int ItemsNumber, CString SrcPath,	BOOL Move, int OpMode);

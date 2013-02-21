@@ -3,7 +3,7 @@
 
 CConfig::CConfig(void)
 {
-	FromReg = TRUE;
+	hHandle = 0;
 }
 
 CConfig::~CConfig(void)
@@ -11,60 +11,97 @@ CConfig::~CConfig(void)
 	Save();
 }
 
-bool CConfig::Load(CString RootReg) 
+bool CConfig::InitHandle()
 {
-	PluginRootKey.Format(_T("%s%s"), RootReg, _T("\\CrOm\\fardroid"));
-
-	FromReg = GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("FromReg"), TRUE);
-
-	if (FromReg)
-	{
-		PanelMode					= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("PanelMode"),			1);
-		SortMode					= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("SortMode"),				1);
-		SortOrder					= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("SortOrder"),			0);
-		WorkMode					= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("WorkMode"),			WORKMODE_SAFE);
-		HotKeyInDisk			= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("HotKeyInDisk"),			_T('0'));
-		ShowLinksAsDir		= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ShowLinksAsDir"),	FALSE);
-		ShowAllPartitions	= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ShowAllPartitions"),	FALSE);
-		UseSU							= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("UseSU"),	FALSE);
-		AddToDiskMenu			= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("AddToDiskMenu"),	FALSE);
-		TimeOut						= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("TimeOut"),	1000);
-		RemountSystem			= GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("RemountSystem"),	FALSE);
-		GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Prefix"), Prefix, _T("fardroid"));
-		GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ADBPath"), ADBPath, _T(""));
-		/*GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Mode1CTypes"), Mode1CTypes, _T("N,C0"));
-		GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Mode1CSizes"), Mode1CSizes, _T("0,9"));
-		GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Mode2CTypes"), Mode2CTypes, _T("N,C0,Z"));
-		GetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Mode2CSizes"), Mode2CSizes, _T("0,9,15"));*/
+	if(hHandle)	
 		return true;
-	}
-	return false;
+	struct FarSettingsCreate sc;
+	sc.StructSize = sizeof(sc);
+	sc.Guid = MainGuid;
+	sc.Handle = INVALID_HANDLE_VALUE;
+	fInfo.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, PSL_ROAMING, &sc);
+	hHandle = (sc.Handle == INVALID_HANDLE_VALUE ? 0 : sc.Handle);
+	return (hHandle != 0);
 }
-void CConfig::SetPaths( CString modulePath ) 
+
+void CConfig::FreeHandle()
 {
-	ModulePath = ExtractPath(modulePath);
+	if(hHandle)
+		fInfo.SettingsControl(hHandle,SCTL_FREE,0,0);
+	hHandle = 0;
+}
+
+void CConfig::Set(const wchar_t* Name, int Value)
+{
+  FarSettingsItem item={sizeof(FarSettingsItem), 0, Name, FST_QWORD, {0}};
+  item.Number=Value;
+  fInfo.SettingsControl(hHandle, SCTL_SET, 0, &item);
+}
+
+void CConfig::Set(const wchar_t* Name, CString &Value)
+{
+  FarSettingsItem item={sizeof(FarSettingsItem), 0, Name, FST_STRING, {0}};
+  item.String = Value;
+  fInfo.SettingsControl(hHandle, SCTL_SET, 0, &item);
+}
+
+void CConfig::Get(const wchar_t* Name, int &Value, int Default)
+{
+  FarSettingsItem item={sizeof(FarSettingsItem), 0, Name, FST_QWORD, {0}};
+  if(fInfo.SettingsControl(hHandle, SCTL_GET, 0, &item))
+	  Value=(int)item.Number;
+  else
+	  Value = Default;
+}
+
+void CConfig::Get(const wchar_t* Name, CString &Value, const wchar_t *Default)
+{
+  FarSettingsItem item={sizeof(FarSettingsItem), 0, Name, FST_STRING, {0}};
+  if(fInfo.SettingsControl(hHandle, SCTL_GET, 0, &item))
+	  Value = item.String;
+  else
+	  Value = Default;
+}
+
+bool CConfig::Load() 
+{
+	if(!InitHandle()) 
+		return false;
+	Get(_T("PanelMode"), PanelMode, 1);
+	Get(_T("SortMode"), SortMode, 1);
+	Get(_T("SortOrder"), SortOrder, 0);
+	Get(_T("WorkMode"), WorkMode, WORKMODE_SAFE);
+	Get(_T("HotKeyInDisk"), HotKeyInDisk, 0);
+	Get(_T("ShowLinksAsDir"), ShowLinksAsDir, FALSE);
+	Get(_T("ShowAllPartitions"), ShowAllPartitions, FALSE);
+	Get(_T("UseSU"), UseSU, FALSE);
+	Get(_T("AddToDiskMenu"), AddToDiskMenu, FALSE);
+	Get(_T("TimeOut"), TimeOut, 1000);
+	Get(_T("RemountSystem"), RemountSystem, FALSE);
+	Get(_T("Prefix"), Prefix, _T("fardroid"));
+	Get(_T("ADBPath"), ADBPath, _T(""));
+	FreeHandle();
+	return true;
 }
 
 void CConfig::Save()
 {
-	SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("FromReg"),	FromReg);
-
-	if (FromReg)
-	{
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("PanelMode"),					PanelMode);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("SortMode"),						SortMode);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("SortOrder"),					SortOrder);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("HotKeyInDisk"),				HotKeyInDisk);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("Prefix"),							Prefix);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ADBPath"),						ADBPath);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("WorkMode"),						WorkMode);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("AddToDiskMenu"),			AddToDiskMenu);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ShowLinksAsDir"),			ShowLinksAsDir);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("ShowAllPartitions"),	ShowAllPartitions);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("UseSU"),							UseSU);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("TimeOut"),						TimeOut);
-		SetRegKey(HKEY_CURRENT_USER,FALSE, _T(""),_T("RemountSystem"),			RemountSystem);
-	}
+	if(!InitHandle()) 
+		return;
+	Set(_T("PanelMode"),			PanelMode);
+	Set(_T("SortMode"),				SortMode);
+	Set(_T("SortOrder"),			SortOrder);
+	Set(_T("HotKeyInDisk"),			HotKeyInDisk);
+	Set(_T("Prefix"),				Prefix);
+	Set(_T("ADBPath"),				ADBPath);
+	Set(_T("WorkMode"),				WorkMode);
+	Set(_T("AddToDiskMenu"),		AddToDiskMenu);
+	Set(_T("ShowLinksAsDir"),		ShowLinksAsDir);
+	Set(_T("ShowAllPartitions"),	ShowAllPartitions);
+	Set(_T("UseSU"),				UseSU);
+	Set(_T("TimeOut"),				TimeOut);
+	Set(_T("RemountSystem"),		RemountSystem);
+	FreeHandle();
 }
 
 BOOL CConfig::LinksAsDir()

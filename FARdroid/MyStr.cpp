@@ -124,11 +124,12 @@ void RegExTokenize(CString str, CString regex, strvec& tokens)
 	tokens.RemoveAll();
 
 	HANDLE hRegex = NULL;
-	if (fInfo.RegExpControl(NULL, RECTL_CREATE, (LONG_PTR)&hRegex))
+	
+	if (fInfo.RegExpControl(NULL, RECTL_CREATE, 0, (void *)&hRegex))
 	{
-		if (fInfo.RegExpControl(hRegex, RECTL_COMPILE, (LONG_PTR)_C(regex)))
+		if (fInfo.RegExpControl(hRegex, RECTL_COMPILE, 0, (void *)_C(regex)))
 		{
-			int brackets=fInfo.RegExpControl(hRegex, RECTL_BRACKETSCOUNT, 0);
+			int brackets=fInfo.RegExpControl(hRegex, RECTL_BRACKETSCOUNT, 0, 0);
 
 			RegExpMatch * match = new RegExpMatch[brackets];
 			RegExpSearch search = 
@@ -141,14 +142,14 @@ void RegExTokenize(CString str, CString regex, strvec& tokens)
 				0
 			};
 
-			if (fInfo.RegExpControl(hRegex, RECTL_SEARCHEX, (LONG_PTR)&search))
+			if (fInfo.RegExpControl(hRegex, RECTL_SEARCHEX, 0, (void *)&search))
 			{
 				for (int i = 1; i < brackets; i++)
 					tokens.Add(str.Mid(match[i].start, match[i].end - match[i].start));
 			}
 			delete [] match;
 		}
-		fInfo.RegExpControl(hRegex, RECTL_FREE, 0);
+		fInfo.RegExpControl(hRegex, RECTL_FREE, 0, 0);
 	}
 }
 
