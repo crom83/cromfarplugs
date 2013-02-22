@@ -2167,7 +2167,7 @@ tryagain:
 	SOCKET sock = CreateADBSocket();
 	if (sock)
 	{
-		if (!SendADBCommand(sock, _T("host:transport-usb")))
+		if (!SendADBCommand(sock, _T("host:transport-any")))
 		{
 			lastError = ERROR_DEV_NOT_EXIST;
 			ShowADBExecError(GetMsg(MDeviceNotFound), false);
