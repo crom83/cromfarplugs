@@ -1,10 +1,7 @@
-// fardroid2.cpp : Defines the entry point for the DLL application.
-//
-
 #include "stdafx.h"
 #include "fardroidPlugin.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
+BOOL	APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
 	switch (ul_reason_for_call)
 	{
@@ -21,18 +18,18 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 	return TRUE;
 }
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void	WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(struct GlobalInfo);
 	Info->MinFarVersion=MAKEFARVERSION(3,0,0,3000,VS_RELEASE); 
-	Info->Version=MAKEFARVERSION(1,0,0,44,VS_RC);
+	Info->Version=MAKEFARVERSION(1,0,45,0,VS_RC);
 	Info->Guid=MainGuid;
 	Info->Title=L"FARdroid";
 	Info->Description=L"fardroid FAR Plugin";
 	Info->Author=L"Vladimir Kubyshev";
 }
 
-void   WINAPI  SetStartupInfoW(const struct PluginStartupInfo *Info)
+void	WINAPI  SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
 	if(Info->StructSize >= sizeof(struct PluginStartupInfo))
 	{
@@ -42,7 +39,7 @@ void   WINAPI  SetStartupInfoW(const struct PluginStartupInfo *Info)
 		conf.Load();
 	}
 }
-void   WINAPI  GetPluginInfoW(struct PluginInfo *Info)
+void	WINAPI  GetPluginInfoW(struct PluginInfo *Info)
 {
 	Info->StructSize = sizeof(PluginInfo);
 	Info->Flags=0;
@@ -62,10 +59,8 @@ void   WINAPI  GetPluginInfoW(struct PluginInfo *Info)
 	Info->CommandPrefix= _C(conf.Prefix);
 
 	static const wchar_t *	DiskMenuString[1];
-	static int		DiskMenuNumber[1];
 
 	DiskMenuString[0] = GetMsg(MTitle);
-	DiskMenuNumber[0] = conf.HotKeyInDisk;
 	if (conf.AddToDiskMenu)
 	{
 		Info->DiskMenu.Strings = DiskMenuString;
@@ -80,7 +75,7 @@ void   WINAPI  GetPluginInfoW(struct PluginInfo *Info)
 	}
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *Info)
+HANDLE	WINAPI OpenW(const struct OpenInfo *Info)
 {
 	switch(Info->OpenFrom)
 	{
@@ -120,7 +115,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 	return INVALID_HANDLE_VALUE;
 }
 
-void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
+void	WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
 {
 	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return;
@@ -128,28 +123,45 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
 	delete android;
 }
 
+intptr_t WINAPI ConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+{
+	if(DN_BTNCLICK == Msg)
+		switch (Param1)
+	{
+		case 6:
+			fInfo.SendDlgMessage(hDlg, DM_ENABLE, 7, Param2);
+			break;
+		case 5:
+		case 9:
+			void * Enable = (void *) (fInfo.SendDlgMessage(hDlg, DM_GETCHECK, 5, 0) &&
+				fInfo.SendDlgMessage(hDlg, DM_GETCHECK, 9, 0));
+			fInfo.SendDlgMessage(hDlg, DM_ENABLE, 10, Enable);
+			break;
+	}
+	return fInfo.DefDlgProc(hDlg, Msg, Param1, Param2);
+}
+
 intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
 	struct InitDialogItem InitItems[]={
-		/*00*/FDI_DOUBLEBOX (47,21,(farStr *)MConfTitle),
+		/*00*/FDI_DOUBLEBOX (47,20,(farStr *)MConfTitle),
 		/*01*/FDI_CHECK			( 2, 2,(farStr *)MConfAddToDisk),
-		/*02*/FDI_FIXEDIT   ( 4, 3, 4, NULL),
-		/*03*/FDI_LABEL     ( 6, 3,(farStr *)MConfAddToDiskLabel),
-		/*04*/FDI_LABEL			( 2, 5, (farStr *)MConfPrefix),
-		/*05*/FDI_EDIT			(10, 5,20, _F("fardroidPrefix")),
-		/*06*/FDI_RADIO			( 2, 7, (farStr*)MConfSafeMode),
-		/*07*/FDI_RADIO			( 2, 8, (farStr*)MConfNative),
-		/*08*/FDI_RADIO			( 2, 9, (farStr*)MConfBusybox),
-		/*09*/FDI_CHECK			( 4,10, (farStr*)MConfShowLinksAsDirs),
-		/*10*/FDI_CHECK			( 2,12, (farStr*)MConfShowAllFilesystems),
-		/*11*/FDI_CHECK			( 2,13, (farStr*)MConfUseSU),
-		/*12*/FDI_CHECK			( 2,14, (farStr*)MConfRemountSystem),
-		/*13*/FDI_LABEL			( 2,15, (farStr*)MConfTimeout),
-		/*14*/FDI_EDIT			(10,15,20, _F("fardroidTimeout")),
-		/*15*/FDI_LABEL			( 2,17, (farStr*)MConfADBPath),
-		/*16*/FDI_EDIT			(15,17,43, _F("fardroidADBPath")),
-		/*17*/FDI_DEFCBUTTON(19,(farStr *)MOk),
-		/*18*/FDI_CBUTTON		(19,(farStr *)MCancel)
+		/*02*/FDI_LABEL			( 2, 3, (farStr *)MConfPrefix),
+		/*03*/FDI_EDIT			(10, 3,20, _F("fardroidPrefix")),
+		/*04*/FDI_RADIO			( 2, 5, (farStr*)MConfSafeMode),
+		/*05*/FDI_RADIO			( 2, 6, (farStr*)MConfNative),
+		/*06*/FDI_RADIO			( 2, 7, (farStr*)MConfBusybox),
+		/*07*/FDI_CHECK			( 4, 8, (farStr*)MConfShowLinksAsDirs),
+		/*08*/FDI_CHECK			( 2,10, (farStr*)MConfShowAllFilesystems),
+		/*09*/FDI_CHECK			( 2,11, (farStr*)MConfUseSU),
+		/*10*/FDI_CHECK			( 4,12, (farStr*)MConfUseExtendedAccess),
+		/*11*/FDI_CHECK			( 2,13, (farStr*)MConfRemountSystem),
+		/*12*/FDI_LABEL			( 2,14, (farStr*)MConfTimeout),
+		/*13*/FDI_EDIT			(10,14,20, _F("fardroidTimeout")),
+		/*14*/FDI_LABEL			( 2,16, (farStr*)MConfADBPath),
+		/*15*/FDI_EDIT			(15,16,43, _F("fardroidADBPath")),
+		/*16*/FDI_DEFCBUTTON	(18,(farStr *)MOk),
+		/*17*/FDI_CBUTTON		(18,(farStr *)MCancel)
 	};
 
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -157,64 +169,63 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 
 	DialogItems[1].Selected = conf.AddToDiskMenu;
 
-	wchar_t * editbuf1 = (wchar_t *)my_malloc(100);
-	FSF.sprintf(editbuf1, L"%d",conf.HotKeyInDisk);
-	DialogItems[2].Data = editbuf1;
-
 	wchar_t * editbuf2 = (wchar_t *)my_malloc(100);
 	lstrcpyW(editbuf2, conf.Prefix);
-	DialogItems[5].Data = editbuf2;
+	DialogItems[3].Data = editbuf2;
 
-	DialogItems[6].Selected = conf.WorkMode == WORKMODE_SAFE;
-	DialogItems[7].Selected = conf.WorkMode == WORKMODE_NATIVE;
-	DialogItems[8].Selected = conf.WorkMode == WORKMODE_BUSYBOX;
-	DialogItems[9].Selected = conf.ShowLinksAsDir;
-	DialogItems[10].Selected = conf.ShowAllPartitions;
-	DialogItems[11].Selected = conf.UseSU;
-	DialogItems[12].Selected = conf.RemountSystem;
+	DialogItems[4].Selected = conf.WorkMode == WORKMODE_SAFE;
+	DialogItems[5].Selected = conf.WorkMode == WORKMODE_NATIVE;
+	DialogItems[6].Selected = conf.WorkMode == WORKMODE_BUSYBOX;
+	DialogItems[7].Selected = conf.ShowLinksAsDir;
+	DialogItems[8].Selected = conf.ShowAllPartitions;
+	DialogItems[9].Selected = conf.UseSU;
+	DialogItems[10].Selected = conf.UseExtendedAccess;
+	DialogItems[11].Selected = conf.RemountSystem;
 
 	wchar_t * editbuf3 = (wchar_t *)my_malloc(100);
 	FSF.sprintf(editbuf3, L"%d", conf.TimeOut);
-	DialogItems[14].Data = editbuf3;
+	DialogItems[13].Data = editbuf3;
 
 	wchar_t * editbuf4 = (wchar_t *)my_malloc(1024);
 	lstrcpyW(editbuf4, conf.ADBPath);
-	DialogItems[16].Data = editbuf4;
+	DialogItems[15].Data = editbuf4;
 
-	HANDLE hdlg;
-
-	int res = ShowDialog(47,21, _F("Config"), DialogItems, sizeof(InitItems)/sizeof(InitItems[0]), hdlg);
-	if (res == 17)
+	HANDLE hdlg = fInfo.DialogInit(&MainGuid, &DialogGuid, -1, -1, 47, 20, _F("Config"), DialogItems, sizeof(InitItems)/sizeof(InitItems[0]), 0, 0, ConfigDlgProc, 0);
+	if(conf.WorkMode != WORKMODE_BUSYBOX)
+		fInfo.SendDlgMessage(hdlg, DM_ENABLE, 7, FALSE);
+	if(!(conf.UseSU && conf.WorkMode == WORKMODE_NATIVE))
+		fInfo.SendDlgMessage(hdlg, DM_ENABLE, 10, FALSE);
+	int res = fInfo.DialogRun(hdlg);
+	if (res == 16)
 	{
 		conf.AddToDiskMenu = GetItemSelected(hdlg, 1);
-		conf.HotKeyInDisk= FSF.atoi(GetItemData(hdlg, 2));
 
-		conf.Prefix = GetItemData(hdlg, 5);
-		if (GetItemSelected(hdlg, 6))
+		conf.Prefix = GetItemData(hdlg, 3);
+		if (GetItemSelected(hdlg, 4))
 			conf.WorkMode = WORKMODE_SAFE;
-		else if (GetItemSelected(hdlg, 7))
+		else if (GetItemSelected(hdlg, 5))
 			conf.WorkMode = WORKMODE_NATIVE;
-		if (GetItemSelected(hdlg, 8))
+		if (GetItemSelected(hdlg, 6))
 			conf.WorkMode = WORKMODE_BUSYBOX;
 
-		conf.ShowLinksAsDir	= GetItemSelected(hdlg, 9);
-		conf.ShowAllPartitions	= GetItemSelected(hdlg, 10);
-		conf.UseSU = GetItemSelected(hdlg, 11);
-		conf.RemountSystem = GetItemSelected(hdlg, 12);
+		conf.ShowLinksAsDir	= GetItemSelected(hdlg, 7);
+		conf.ShowAllPartitions	= GetItemSelected(hdlg, 8);
+		conf.UseSU = GetItemSelected(hdlg, 9);
+		conf.UseExtendedAccess = GetItemSelected(hdlg, 10);
+		conf.RemountSystem = GetItemSelected(hdlg, 11);
 
-		conf.TimeOut = FSF.atoi(GetItemData(hdlg, 14));
+		conf.TimeOut = FSF.atoi(GetItemData(hdlg, 13));
 
-		conf.ADBPath = GetItemData(hdlg, 16);
+		conf.ADBPath = GetItemData(hdlg, 15);
 
 		conf.Save();
 	}
 	fInfo.DialogFree(hdlg);
-	my_free(editbuf1);
 	my_free(editbuf2);
 	my_free(editbuf3);
 	my_free(editbuf4);
 
-	return res == 17;
+	return res == 16;
 }
 
 void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
@@ -253,7 +264,7 @@ intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 
 	return android->GetFindData(&Info->PanelItem, &Info->ItemsNumber, (int)Info->OpMode);
 }
-void     WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
+void	WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
 {
 	if(!Info->hPanel || INVALID_HANDLE_VALUE == Info->hPanel)
 		return;
@@ -291,7 +302,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 	{
 		if(Info->Rec.Event.KeyEvent.wVirtualKeyCode == VK_F9)
 		{
-			// Âûçûâàåì äèàëîã èçìåíåíèÿ ïðàâ äîñòóïà äëÿ ôàéëîâ èëè äèðåêòîðèé
+			// Ð’Ñ‹Ð·Ñ‹Ð²Ð°ÐµÐ¼ Ð´Ð¸Ð°Ð»Ð¾Ð³ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ð¿Ñ€Ð°Ð² Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ð´Ð»Ñ Ñ„Ð°Ð¹Ð»Ð¾Ð² Ð¸Ð»Ð¸ Ð´Ð¸Ñ€ÐµÐºÑ‚Ð¾Ñ€Ð¸Ð¹
 			android->ChangePermissionsDialog();
 			return TRUE;
 		}
@@ -334,7 +345,7 @@ intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 
 	if (Info->Move)
 	{
-		//ïîñëå óäà÷íîãî êîïèðîâàíèÿ óäàëèì ôàéëû
+		//Ð¿Ð¾ÑÐ»Ðµ ÑƒÐ´Ð°Ñ‡Ð½Ð¾Ð³Ð¾ ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ ÑƒÐ´Ð°Ð»Ð¸Ð¼ Ñ„Ð°Ð¹Ð»Ñ‹
 		Info->OpMode |= OPM_SILENT;
 		if (!android->DeleteFiles(Info->PanelItem, Info->ItemsNumber, (int)Info->OpMode))
 			return FALSE;

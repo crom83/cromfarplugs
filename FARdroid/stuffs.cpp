@@ -98,7 +98,7 @@ bool CheckForKey(const int key)
 
 int rnd( int maxRnd )
 {
-	//сделаем более случайный выбор
+	//СЃРґРµР»Р°РµРј Р±РѕР»РµРµ СЃР»СѓС‡Р°Р№РЅС‹Р№ РІС‹Р±РѕСЂ
 	int rnds[10];
 	for (int i = 0; i < 10; i++)
 		rnds[i] = rand() % maxRnd;

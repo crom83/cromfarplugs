@@ -23,6 +23,7 @@ enum
 	MConfShowLinksAsDirs,
 	MConfShowAllFilesystems,
 	MConfUseSU,
+	MConfUseExtendedAccess,
 	MConfRemountSystem,
 	MConfTimeout,
 	MConfADBPath,

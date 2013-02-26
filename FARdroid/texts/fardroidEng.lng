@@ -20,6 +20,7 @@
 "Show links as dirs"
 "Show all file systems"
 "Work with Superuser permissions"
+"Use extended file access"
 "Remount /system as RW"
 "Timeout:"
 "Path to ADB:"

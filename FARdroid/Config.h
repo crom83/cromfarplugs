@@ -19,12 +19,12 @@ public:
 	int			SortMode;
 	int			SortOrder;
 	int			WorkMode;
-	int			HotKeyInDisk;
 	int			TimeOut;
 	BOOL		AddToDiskMenu;
 	BOOL		ShowLinksAsDir;
 	BOOL		ShowAllPartitions;
 	BOOL		UseSU;
+	BOOL		UseExtendedAccess;
 	BOOL		RemountSystem;
 	/*CString Mode1CTypes;
 	CString Mode1CSizes;

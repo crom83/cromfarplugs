@@ -340,45 +340,43 @@ bool fardroid::CopyFileFrom(const CString& src, const CString& dst, bool &noProm
 
 	CString sRes;
 repeatcopy:
-	// "adb.exe pull" в принципе не может читать файл с устройства с правами Superuser.
-	// Если у файла не установлены права доступа на чтения для простых пользователей,
-	// то файл не будет прочитан. 
+	// "adb.exe pull" РІ РїСЂРёРЅС†РёРїРµ РЅРµ РјРѕР¶РµС‚ С‡РёС‚Р°С‚СЊ С„Р°Р№Р» СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР° СЃ РїСЂР°РІР°РјРё Superuser.
+	// Р•СЃР»Рё Сѓ С„Р°Р№Р»Р° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° РЅР° С‡С‚РµРЅРёСЏ РґР»СЏ РїСЂРѕСЃС‚С‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№,
+	// С‚Рѕ С„Р°Р№Р» РЅРµ Р±СѓРґРµС‚ РїСЂРѕС‡РёС‚Р°РЅ. 
 
-	// Чтобы такие файлы все же прочитать, добавим к правам доступа файла, право на чтение
-	// для простых пользователей. А затем вернем оригинальные права доступа к файлу.
-	// Этот работает только в Native Mode с включенным Superuser
+	// Р§С‚РѕР±С‹ С‚Р°РєРёРµ С„Р°Р№Р»С‹ РІСЃРµ Р¶Рµ РїСЂРѕС‡РёС‚Р°С‚СЊ, РґРѕР±Р°РІРёРј Рє РїСЂР°РІР°Рј РґРѕСЃС‚СѓРїР° С„Р°Р№Р»Р°, РїСЂР°РІРѕ РЅР° С‡С‚РµРЅРёРµ
+	// РґР»СЏ РїСЂРѕСЃС‚С‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№. Рђ Р·Р°С‚РµРј РІРµСЂРЅРµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рµ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє С„Р°Р№Р»Сѓ.
+	// Р­С‚РѕС‚ СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РІ Native Mode СЃ РІРєР»СЋС‡РµРЅРЅС‹Рј Superuser, РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј ExtendedAccess
 
-	// Добавляем к правам доступа файла право на чтение для всех пользователей.
 	CString old_permissions;
-	if(conf.WorkMode == WORKMODE_NATIVE)
+	bool UseChmod = (conf.WorkMode == WORKMODE_NATIVE && conf.UseSU && conf.UseExtendedAccess);
+	if(UseChmod)
 	{
+		UseChmod = false;
 		old_permissions = GetPermissionsFile(src);
-	
-		if(!old_permissions.IsEmpty())
+		// РџСЂРѕРІРµСЂСЏРµРј, РёРјРµРµС‚ Р»Рё СѓР¶Рµ С„Р°Р№Р» СЂР°Р·СЂРµС€РµРЅРёРµ r РґР»СЏ РіСЂСѓРїРїС‹ Others
+		if(!old_permissions.IsEmpty() && old_permissions.GetAt(old_permissions.GetLength()-3) != _T('r'))
 		{
 			CString new_permissions = old_permissions;
+			// Р”РѕР±Р°РІР»СЏРµРј Рє РїСЂР°РІР°Рј РґРѕСЃС‚СѓРїР° С„Р°Р№Р»Р° РїСЂР°РІРѕ РЅР° С‡С‚РµРЅРёРµ РґР»СЏ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.
 			new_permissions.SetAt(new_permissions.GetLength()-3, _T('r'));
-
 			SetPermissionsFile(src, new_permissions);
+			UseChmod = true;
 		}
 	}
 
-	// Читаем файл
+	// Р§РёС‚Р°РµРј С„Р°Р№Р»
 	BOOL res = ADB_pull(src, dst, sRes, bSilent);
 
-	// Восстановим оригинальные права на файл
-	if(conf.WorkMode == WORKMODE_NATIVE)
-	{	
-		if(!old_permissions.IsEmpty())
-			SetPermissionsFile(src, old_permissions);
-	}
-
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІРёРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рµ РїСЂР°РІР° РЅР° С„Р°Р№Р»
+	if(UseChmod)
+		SetPermissionsFile(src, old_permissions);
 
 	if (!res)
 	{
-		// Silent предполагает не задавать пользователю лишних вопросов. 
-		//        Но сообщения об ошибках нужно все же выводить.
-		//   if (bSilent)//если отключен вывод на экран, то просто возвращаем что все ОК
+		// Silent РїСЂРµРґРїРѕР»Р°РіР°РµС‚ РЅРµ Р·Р°РґР°РІР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ Р»РёС€РЅРёС… РІРѕРїСЂРѕСЃРѕРІ. 
+		//        РќРѕ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С… РЅСѓР¶РЅРѕ РІСЃРµ Р¶Рµ РІС‹РІРѕРґРёС‚СЊ.
+		//   if (bSilent)//РµСЃР»Рё РѕС‚РєР»СЋС‡РµРЅ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ, С‚Рѕ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј С‡С‚Рѕ РІСЃРµ РћРљ
 		//	    return true;
 
 		if(conf.WorkMode == WORKMODE_NATIVE)
@@ -412,44 +410,47 @@ bool fardroid::CopyFileTo(const CString& src, const CString& dst, bool &noPromt,
 {
 	CString sRes;
 repeatcopy:
-	// "adb.exe push" в принципе не может перезаписывать файл в устройстве с правами Superuser.
-	// Если у файла не установлены прав доступа на запись для простых пользователей,
-	// то файл не будет перезаписан. (т.е. например? после редактирования файл нельзя будет сохранить)
+	// "adb.exe push" РІ РїСЂРёРЅС†РёРїРµ РЅРµ РјРѕР¶РµС‚ РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ С„Р°Р№Р» РІ СѓСЃС‚СЂРѕР№СЃС‚РІРµ СЃ РїСЂР°РІР°РјРё Superuser.
+	// Р•СЃР»Рё Сѓ С„Р°Р№Р»Р° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РїСЂР°РІ РґРѕСЃС‚СѓРїР° РЅР° Р·Р°РїРёСЃСЊ РґР»СЏ РїСЂРѕСЃС‚С‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№,
+	// С‚Рѕ С„Р°Р№Р» РЅРµ Р±СѓРґРµС‚ РїРµСЂРµР·Р°РїРёСЃР°РЅ. (С‚.Рµ. РЅР°РїСЂРёРјРµСЂ? РїРѕСЃР»Рµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ С„Р°Р№Р» РЅРµР»СЊР·СЏ Р±СѓРґРµС‚ СЃРѕС…СЂР°РЅРёС‚СЊ)
 
-	// Чтобы такие файлы все же перезаписать, добавим к правам доступа файла, право на запись
-	// для простых пользователей. А затем вернем оригинальные права доступа к файлу.
-	// Этот работает только в Native Mode с включенным Superuser
+	// Р§С‚РѕР±С‹ С‚Р°РєРёРµ С„Р°Р№Р»С‹ РІСЃРµ Р¶Рµ РїРµСЂРµР·Р°РїРёСЃР°С‚СЊ, РґРѕР±Р°РІРёРј Рє РїСЂР°РІР°Рј РґРѕСЃС‚СѓРїР° С„Р°Р№Р»Р°, РїСЂР°РІРѕ РЅР° Р·Р°РїРёСЃСЊ
+	// РґР»СЏ РїСЂРѕСЃС‚С‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№. Рђ Р·Р°С‚РµРј РІРµСЂРЅРµРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рµ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє С„Р°Р№Р»Сѓ.
+	// Р­С‚РѕС‚ СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РІ Native Mode СЃ РІРєР»СЋС‡РµРЅРЅС‹Рј Superuser, РїСЂРё РІРєР»СЋС‡РµРЅРЅРѕРј ExtendedAccess
 
-	// Добавляем к правам доступа файла право на запись для всех пользователей.	
 	CString old_permissions;
-	if(conf.WorkMode == WORKMODE_NATIVE)
+	bool UseChmod = (conf.WorkMode == WORKMODE_NATIVE && conf.UseSU && conf.UseExtendedAccess);
+	if(UseChmod)
 	{
+		UseChmod = false;
 		old_permissions = GetPermissionsFile(dst);
-	
-		if(!old_permissions.IsEmpty())
+		// РџСЂРѕРІРµСЂСЏРµРј, РёРјРµРµС‚ Р»Рё СѓР¶Рµ С„Р°Р№Р» СЂР°Р·СЂРµС€РµРЅРёРµ w РґР»СЏ РіСЂСѓРїРїС‹ Others
+		if(!old_permissions.IsEmpty() && old_permissions.GetAt(old_permissions.GetLength()-2) != _T('w'))
 		{
 			CString new_permissions = old_permissions;
+			// Р”РѕР±Р°РІР»СЏРµРј Рє РїСЂР°РІР°Рј РґРѕСЃС‚СѓРїР° С„Р°Р№Р»Р° РїСЂР°РІРѕ РЅР° Р·Р°РїРёСЃСЊ РґР»СЏ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.	
 			new_permissions.SetAt(new_permissions.GetLength()-2, _T('w'));
-
 			SetPermissionsFile(dst, new_permissions);
+			UseChmod = true;
 		}
 	}
 
-	// Запись файла
+	// Р—Р°РїРёСЃСЊ С„Р°Р№Р»Р°
 	BOOL res = ADB_push(src, dst, sRes, bSilent);
 
-	// Восстановим оригинальные права на файл
-	if(conf.WorkMode == WORKMODE_NATIVE)
-	{	
-		if(!old_permissions.IsEmpty())
-			SetPermissionsFile(dst, old_permissions);
-	}
+	// Р’РѕСЃСЃС‚Р°РЅРѕРІРёРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Рµ РїСЂР°РІР° РЅР° С„Р°Р№Р»
+	if(UseChmod)
+		SetPermissionsFile(dst, old_permissions);
+	// Р•СЃР»Рё РјС‹ СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ С„Р°Р№Р»
+	if (old_permissions.IsEmpty() && conf.WorkMode == WORKMODE_NATIVE && conf.UseSU && conf.UseExtendedAccess)
+		// РўРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїСЂР°РІР° РїРѕ-СѓРјР°Р»С‡Р°РЅРёСЋ 666
+		SetPermissionsFile(dst, "-rw-rw-rw-");
 
 	if (!res)
 	{
-		// Silent предполагает не задавать пользователю лишних вопросов. 
-		//        Но сообщения об ошибках нужно все же выводить.
-		//  if (bSilent) //если отключен вывод на экран, то просто возвращаем что все ОК
+		// Silent РїСЂРµРґРїРѕР»Р°РіР°РµС‚ РЅРµ Р·Р°РґР°РІР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ Р»РёС€РЅРёС… РІРѕРїСЂРѕСЃРѕРІ. 
+		//        РќРѕ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С… РЅСѓР¶РЅРѕ РІСЃРµ Р¶Рµ РІС‹РІРѕРґРёС‚СЊ.
+		//  if (bSilent) //РµСЃР»Рё РѕС‚РєР»СЋС‡РµРЅ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ, С‚Рѕ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј С‡С‚Рѕ РІСЃРµ РћРљ
 		//	   return true;
 
 		if(conf.WorkMode == WORKMODE_NATIVE)
@@ -484,7 +485,7 @@ bool fardroid::DeleteFileFrom(const CString& src, bool &noPromt, bool &ansYes, b
 	BOOL res = ADB_rm(src, sRes, bSilent);
 	if (!res)
 	{
-		if (bSilent)//если отключен вывод на экран, то просто возвращаем что все ОК
+		if (bSilent)//РµСЃР»Рё РѕС‚РєР»СЋС‡РµРЅ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ, С‚Рѕ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј С‡С‚Рѕ РІСЃРµ РћРљ
 			return true;
 
 		/*CString errmsg;
@@ -650,7 +651,7 @@ int fardroid::UpdateInfoLines()
 
 void fardroid::PreparePanel( OpenPanelInfo *Info )
 {
-	//TODO!!! - сделать динамические массивы
+	//TODO!!! - СЃРґРµР»Р°С‚СЊ РґРёРЅР°РјРёС‡РµСЃРєРёРµ РјР°СЃСЃРёРІС‹
 	Info->HostFile = _C(fileUnderCursor);
 
 	panelTitle.Format(_T(" %s: /%s "), GetMsg(MTitle), m_currentPath);
@@ -830,14 +831,14 @@ int fardroid::ChangeDir( LPCTSTR sDir, int OpMode)
 	CString tempPath;
 	int i = s.Find(_T("/"));
 	int j = s.Find(_T("\\"));
-	if (i != -1 || j != -1)//перемещение с помощью команды cd
+	if (i != -1 || j != -1)//РїРµСЂРµРјРµС‰РµРЅРёРµ СЃ РїРѕРјРѕС‰СЊСЋ РєРѕРјР°РЅРґС‹ cd
 	{
-		if (s[0] == _T('/') || s[0] == _T('\\')) //абсолютный путь
+		if (s[0] == _T('/') || s[0] == _T('\\')) //Р°Р±СЃРѕР»СЋС‚РЅС‹Р№ РїСѓС‚СЊ
 			tempPath = s;
-		else //относительный путь в глубь иерархии (пока отбрасываем всякие ..\path. TODO!!!)
+		else //РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ РїСѓС‚СЊ РІ РіР»СѓР±СЊ РёРµСЂР°СЂС…РёРё (РїРѕРєР° РѕС‚Р±СЂР°СЃС‹РІР°РµРј РІСЃСЏРєРёРµ ..\path. TODO!!!)
 			tempPath.Format(_T("/%s%s%s"), m_currentPath, m_currentPath.IsEmpty()?_T(""):_T("/"), s);
 	}
-	if (i == -1 && j == -1)//простое относительное перемещение
+	if (i == -1 && j == -1)//РїСЂРѕСЃС‚РѕРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРµ РїРµСЂРµРјРµС‰РµРЅРёРµ
 	{
 		if (s == _T(".."))
 			tempPath = ExtractPath(m_currentPath);
@@ -1362,7 +1363,7 @@ BOOL fardroid::ADB_ls(LPCTSTR sDir, CFileRecords & files, CString & sRes, bool b
 			s.Format(_T("ls -l -a \"%s\""), sDir);
 			break;
 		case WORKMODE_BUSYBOX:
-			s.Format(_T("busybox ls -lAe%s --color=never \"%s\""), conf.LinksAsDir()?_T("L"):_T(""), sDir);
+			s.Format(_T("busybox ls -lAe%s --color=never \"%s\""), conf.LinksAsDir()?_T(""):_T("L"), sDir);
 			break;
 		}
 		if(ADBShellExecute(s, sRes, bSilent))
@@ -1472,35 +1473,6 @@ BOOL fardroid::ReadFileList( CString & sFileList, CFileRecords & files )
 	}
 	return TRUE;
 }
-
-/*bool fardroid::ParseFileLineSafe( CString & sLine )
-{
-	strvec tokens;
-	CString regex = _T("/(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s+(\\w+(?=\\s))\\s(.+)$/");
-	RegExTokenize(sLine, regex, tokens);
-
-	if (tokens.GetSize() == 4)
-	{
-		CFileRecord * rec = new CFileRecord;
-		rec->attr = ModeToAttr(_httoi(tokens[0]));
-		rec->size = _httoi(tokens[1]);
-		rec->time = _httoi(tokens[2]);
-		rec->filename = UTF8toW(tokens[3]);
-
-		if (rec->filename == _T(".") || 
-				rec->filename == _T(".."))
-		{
-			delete rec;
-			return true;
-		}
-
-		records.Add(rec);
-
-		return true;
-	}
-
-	return false;
-}*/
 
 bool fardroid::ParseFileLine( CString & sLine, CFileRecords &files )
 {
@@ -2065,23 +2037,6 @@ bool fardroid::DeviceTest()
 	}
 
 	return false;
-
-	/*lastError = S_OK;
-	CString s = _T("cmd /c adb devices");
-	CString sRes;
-	if (ADBShellExecute(s, sRes, false))
-	{
-		strvec tokens;
-		Tokenize(sRes, tokens, _T("\n"));
-		if (tokens.GetSize() <= 1)
-		{
-			lastError = ERROR_DEV_NOT_EXIST;
-			ShowADBExecError(GetMsg(MDeviceNotFound), false);
-			return false;
-		}
-		return true;
-	}
-	return false;*/
 }
 
 SOCKET fardroid::CreateADBSocket()
@@ -2144,7 +2099,7 @@ bool fardroid::ReadADBSocket( SOCKET sockADB, char * buf, int bufSize )
 	while(received < bufSize)
 	{
 		nsize = recv( sockADB, buf, bufSize, 0 );
-		if (nsize == SOCKET_ERROR)//ошибко
+		if (nsize == SOCKET_ERROR)//РѕС€РёР±РєРѕ
 			return false;
 
 		received += nsize;
@@ -2340,151 +2295,3 @@ BOOL fardroid::ADB_mount( LPCTSTR sFS, BOOL bAsRW, CString & sRes, bool bSilent 
 	}
 	return FALSE;
 }
-/*BOOL fardroid::ADB_execute( LPCTSTR sCMD, CString & sRes, bool bSilent)
-{
-	m_bForceBreak = false;
-	lastError = S_OK;
-	CHAR buf[1024];
-
-	STARTUPINFO si;
-	SECURITY_ATTRIBUTES sa;
-	SECURITY_DESCRIPTOR sd;
-	PROCESS_INFORMATION pi;
-
-#ifdef USELOGGING
-	CPerfCounter counter;
-	counter.Start(_T("Exec prepare"));
-#endif
-
-	HANDLE newstdin,newstdout,read_stdout,write_stdin;
-
-	InitializeSecurityDescriptor(&sd,SECURITY_DESCRIPTOR_REVISION);
-	SetSecurityDescriptorDacl(&sd, true, NULL, false);
-	sa.lpSecurityDescriptor = &sd;
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.bInheritHandle = true;
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec create in-pipe"));
-#endif
-
-	if (!CreatePipe(&newstdin,&write_stdin,&sa,0))   //создаем пайп
-	{
-		lastError = ERROR_CREATE_FAILED;
-		ShowADBExecError(_T(""), bSilent);
-		return FALSE;
-	}
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec create out-pipe"));
-#endif
-
-	if (!CreatePipe(&read_stdout,&newstdout,&sa,0)) //создаем пайп
-	{
-		lastError = ERROR_CREATE_FAILED;
-		CloseHandle(newstdin);
-		CloseHandle(write_stdin);
-		ShowADBExecError(_T(""), bSilent);
-		return FALSE;
-	}
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec get startup info"));
-#endif
-
-	GetStartupInfo(&si);
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.wShowWindow	= SW_HIDE;
-	si.hStdOutput		= newstdout;
-	si.hStdError		= newstdout;   //подменяем дескрипторы для
-	si.hStdInput		= newstdin;    // дочернего процесса
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec create process"));
-#endif
-	//создаем дочерний процесс
-	if (!CreateProcess(NULL, (LPWSTR)sCMD, NULL, NULL, TRUE, CREATE_NEW_CONSOLE|CREATE_DEFAULT_ERROR_MODE, NULL, NULL, &si, &pi))
-	{
-		lastError = ERROR_CREATE_FAILED;
-		CloseHandle(newstdin);
-		CloseHandle(newstdout);
-		CloseHandle(read_stdout);
-		CloseHandle(write_stdin);
-		ShowADBExecError(_T(""), bSilent);
-		return FALSE;
-	}
-
-	unsigned long exit=0;  //код завершения процесса
-	unsigned long bread = 0;   //кол-во прочитанных байт
-	unsigned long avail = 0;   //кол-во доступных байт
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec set buffers"));
-#endif
-
-	my_memset(buf, 0, 1024);
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec Wait"));
-#endif
-
-	WaitForSingleObject(pi.hProcess, conf.TimeOut);
-
-	for(;;)      //основной цикл программы
-	{
-#ifdef USELOGGING
-		counter.Reset(_T("Exec Peek"));
-#endif
-
-		PeekNamedPipe(read_stdout,buf,1023,&bread,&avail,NULL);
-
-		if (bread != 0)
-		{
-#ifdef USELOGGING
-			counter.Reset(_T("Exec Read"));
-#endif
-
-			if (avail > 1023)
-			{
-				while (bread >= 1023)
-				{
-					ReadFile(read_stdout,buf,1023,&bread,NULL);  //читаем из пайпа stdout
-					sRes += buf;
-					my_memset(buf, 0, 1024);
-				}
-			}
-			else
-			{
-				ReadFile(read_stdout,buf,1023,&bread,NULL);
-				sRes += buf;
-			}
-
-#ifdef USELOGGING
-			counter.Reset(_T("Exec Status"));
-#endif
-		}
-
-		GetExitCodeProcess(pi.hProcess,&exit); //пока дочерний процесс не закрыт
-		if (exit != STILL_ACTIVE || m_bForceBreak)
-			break;
-	}
-
-#ifdef USELOGGING
-	counter.Reset(_T("Exec Cleanup"));
-#endif
-
-	CloseHandle(pi.hThread);
-	CloseHandle(pi.hProcess);
-	CloseHandle(newstdin);            //небольшая уборка за собой
-	CloseHandle(newstdout);
-	CloseHandle(read_stdout);
-	CloseHandle(write_stdin);
-
-	if (exit != 0 && !m_bForceBreak)
-	{
-		lastError = ERROR_BAD_COMMAND;
-		ShowADBExecError(sRes.Left(128), bSilent);
-		return FALSE;
-	}
-	return TRUE;
-}*/

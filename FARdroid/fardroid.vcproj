@@ -27,8 +27,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Updating Version Header..."
-				CommandLine="VerHeader &quot;$(ProjectName).rc&quot; version.info"
+				CommandLine=""
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="includes\FARUnicode"
+				AdditionalIncludeDirectories="includes\FARUnicode;includes"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -67,6 +67,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib"
+				OutputFile="C:\Program Files\Far\Plugins\FarDroid\fardroid.dll"
 				LinkIncremental="2"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames=""
@@ -99,8 +100,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying Files"
-				CommandLine="$(SolutionDir)postlink32.bat &quot;$(TargetPath)&quot; &quot;$(ProjectName).rc&quot; 1"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -112,8 +113,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Updating Version Header..."
-				CommandLine="VerHeader &quot;$(ProjectName).rc&quot; version.info"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -184,8 +185,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying Files"
-				CommandLine="$(SolutionDir)postlink64.bat &quot;$(TargetPath)&quot; &quot;$(ProjectName).rc&quot; 1"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -198,8 +199,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Updating Version Header..."
-				CommandLine="VerHeader &quot;$(ProjectName).rc&quot; version.info"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -218,7 +218,7 @@
 				Optimization="2"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="includes\farunicode"
+				AdditionalIncludeDirectories="includes\farunicode;includes"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -274,8 +274,9 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying Files"
-				CommandLine="$(SolutionDir)postlink32.bat &quot;$(TargetPath)&quot; &quot;$(ProjectName).rc&quot; 2"
+				Description=""
+				CommandLine=""
+				ExcludedFromBuild="false"
 			/>
 		</Configuration>
 		<Configuration
@@ -288,8 +289,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Updating Version Header..."
-				CommandLine="VerHeader &quot;$(ProjectName).rc&quot; version.info"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -309,7 +309,7 @@
 				Optimization="2"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="includes\FARUnicode"
+				AdditionalIncludeDirectories="includes\FARUnicode;includes"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;fardroid_EXPORTS"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -365,8 +365,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying Files"
-				CommandLine="$(SolutionDir)postlink64.bat &quot;$(TargetPath)&quot; &quot;$(ProjectName).rc&quot; 2"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
@@ -400,10 +400,6 @@
 			</File>
 			<File
 				RelativePath=".\MyStr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Reg.cpp"
 				>
 			</File>
 			<File
@@ -481,10 +477,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\reg.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\resource.h"
 				>
 			</File>
@@ -504,18 +496,6 @@
 			>
 			<File
 				RelativePath=".\fardroid.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\res\pause.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\play.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\stop.ico"
 				>
 			</File>
 			<File

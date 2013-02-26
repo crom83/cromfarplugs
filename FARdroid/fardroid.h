@@ -54,7 +54,7 @@ struct syncsendbuf
 	char data[SYNC_DATA_MAX];
 };
 
-//чтение файла с проверкой результата
+//С‡С‚РµРЅРёРµ С„Р°Р№Р»Р° СЃ РїСЂРѕРІРµСЂРєРѕР№ СЂРµР·СѓР»СЊС‚Р°С‚Р°
 #define CHECKREADOK(rd_type) \
 	res = ReadFile(hFile, &rd_type, sizeof(rd_type), &rd, NULL);\
 	if (!res)\
@@ -68,7 +68,7 @@ struct syncsendbuf
 		return INVALID_HANDLE_VALUE;\
 	}\
 
-//чтение файла с проверкой результата во вложенной функции
+//С‡С‚РµРЅРёРµ С„Р°Р№Р»Р° СЃ РїСЂРѕРІРµСЂРєРѕР№ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІРѕ РІР»РѕР¶РµРЅРЅРѕР№ С„СѓРЅРєС†РёРё
 #define CHECKREADOK2(rd_type) \
 	res = ReadFile(hFile, &rd_type, sizeof(rd_type), &rd, NULL);\
 	if (res &&  rd == 0) \
@@ -78,28 +78,28 @@ struct syncsendbuf
 	else if (rd != sizeof(rd_type))\
 		return ERROR_BAD_FORMAT
 
-//подготовка и запись строки в файл
+//РїРѕРґРіРѕС‚РѕРІРєР° Рё Р·Р°РїРёСЃСЊ СЃС‚СЂРѕРєРё РІ С„Р°Р№Р»
 #define WRITELINESTR(str1, str2)\
 	PrepareInfoLine(str1, str2, line);\
 	if (!WriteLine( stream, line, CodePage_ANSI)) goto exit
 
-//подготовка и запись числа в файл
+//РїРѕРґРіРѕС‚РѕРІРєР° Рё Р·Р°РїРёСЃСЊ С‡РёСЃР»Р° РІ С„Р°Р№Р»
 #define WRITELINEINT(str1, i)\
 	PrepareInfoLine(str1, i, line, _T("%s%u\n"));\
 	if (!WriteLine( stream, line, CodePage_ANSI)) goto exit
 
-//подготовка и запись даты в файл
+//РїРѕРґРіРѕС‚РѕРІРєР° Рё Р·Р°РїРёСЃСЊ РґР°С‚С‹ РІ С„Р°Р№Р»
 #define WRITELINEDATE64(str1, d)\
 	PrepareInfoLineDate(str1, d, line, true);\
 	if (!WriteLine( stream, line, CodePage_ANSI)) goto exit
 
-//подготовка и запись даты в файл
+//РїРѕРґРіРѕС‚РѕРІРєР° Рё Р·Р°РїРёСЃСЊ РґР°С‚С‹ РІ С„Р°Р№Р»
 #define WRITELINEDATE32(str1, d)\
 	PrepareInfoLineDate(str1, d, line, false);\
 	if (!WriteLine( stream, line, CodePage_ANSI)) goto exit
 
 
-//запись в файл перевода строки
+//Р·Р°РїРёСЃСЊ РІ С„Р°Р№Р» РїРµСЂРµРІРѕРґР° СЃС‚СЂРѕРєРё
 #define WRITELINEBRAKE\
 	line = _T("\n");\
 	if (!WriteLine( stream, line, CodePage_ANSI)) goto exit

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renewal>
+	<plugin guid="{B4C0E3A4-E340-4931-8951-ED2EE3846FA0}">
+		<home arch="any">https://code.google.com/p/cromfarplugs</home>
+		<url arch="any">https://code.google.com/p/cromfarplugs/downloads/list</url>
+		<changelog arch="any">https://code.google.com/p/cromfarplugs/source/browse/FARdroid/ChangeLog</changelog>
+		<regex arch="x64">//cromfarplugs\.googlecode\.com/files/fardroid_(\d+)\.(\d+)\.(\d+)\.(\d+)_x64\.zip</regex>
+		<regex arch="x86">//cromfarplugs\.googlecode\.com/files/fardroid_(\d+)\.(\d+)\.(\d+)\.(\d+)_x86\.zip</regex>
+		<srcpath arch="any">FarDroid</srcpath>
+	</plugin>
+
+</renewal>

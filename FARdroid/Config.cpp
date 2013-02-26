@@ -71,10 +71,10 @@ bool CConfig::Load()
 	Get(_T("SortMode"), SortMode, 1);
 	Get(_T("SortOrder"), SortOrder, 0);
 	Get(_T("WorkMode"), WorkMode, WORKMODE_SAFE);
-	Get(_T("HotKeyInDisk"), HotKeyInDisk, 0);
 	Get(_T("ShowLinksAsDir"), ShowLinksAsDir, FALSE);
 	Get(_T("ShowAllPartitions"), ShowAllPartitions, FALSE);
 	Get(_T("UseSU"), UseSU, FALSE);
+	Get(_T("UseExtendedAccess"), UseExtendedAccess, FALSE);
 	Get(_T("AddToDiskMenu"), AddToDiskMenu, FALSE);
 	Get(_T("TimeOut"), TimeOut, 1000);
 	Get(_T("RemountSystem"), RemountSystem, FALSE);
@@ -91,7 +91,6 @@ void CConfig::Save()
 	Set(_T("PanelMode"),			PanelMode);
 	Set(_T("SortMode"),				SortMode);
 	Set(_T("SortOrder"),			SortOrder);
-	Set(_T("HotKeyInDisk"),			HotKeyInDisk);
 	Set(_T("Prefix"),				Prefix);
 	Set(_T("ADBPath"),				ADBPath);
 	Set(_T("WorkMode"),				WorkMode);
@@ -99,6 +98,7 @@ void CConfig::Save()
 	Set(_T("ShowLinksAsDir"),		ShowLinksAsDir);
 	Set(_T("ShowAllPartitions"),	ShowAllPartitions);
 	Set(_T("UseSU"),				UseSU);
+	Set(_T("UseExtendedAccess"),	UseExtendedAccess);
 	Set(_T("TimeOut"),				TimeOut);
 	Set(_T("RemountSystem"),		RemountSystem);
 	FreeHandle();
