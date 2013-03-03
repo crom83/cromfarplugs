@@ -441,10 +441,6 @@ repeatcopy:
 	// Восстановим оригинальные права на файл
 	if(UseChmod)
 		SetPermissionsFile(dst, old_permissions);
-	// Если мы создаем новый файл
-	if (old_permissions.IsEmpty() && conf.WorkMode == WORKMODE_NATIVE && conf.UseSU && conf.UseExtendedAccess)
-		// То устанавливаем права по-умалчанию 666
-		SetPermissionsFile(dst, "-rw-rw-rw-");
 
 	if (!res)
 	{
@@ -697,6 +693,8 @@ void fardroid::ChangePermissionsDialog()
 	CString CurrentFullFileName = CString(_T("/")) + CurrentDir + _T("/") + CurrentFileName;
 
 	CString permissions = GetPermissionsFile(CurrentFullFileName);
+	if(permissions.IsEmpty())
+		return;
 
 	struct InitDialogItem InitItems[]={
 		/*00*/FDI_DOUBLEBOX     (47, 21, (farStr *)MPermTitle),
@@ -885,7 +883,8 @@ void fardroid::ADBSyncQuit( SOCKET sockADB )
 bool fardroid::ADBReadMode(SOCKET sockADB, LPCTSTR path, int &mode)
 {
 	syncmsg msg;
-	int len = lstrlen(path);
+	CString file = WtoUTF8(path);
+	int len = lstrlen(file);
 
 	msg.req.id = ID_STAT;
 	msg.req.namelen = len;
@@ -893,7 +892,7 @@ bool fardroid::ADBReadMode(SOCKET sockADB, LPCTSTR path, int &mode)
 	bool bOk = false;
 	if (SendADBPacket(sockADB, &msg.req, sizeof(msg.req)))
 	{
-		char * buf = getAnsiString(path);
+		char * buf = getAnsiString(file);
 		bOk = SendADBPacket(sockADB, buf, len);
 		my_free(buf);
 	}
@@ -1102,7 +1101,8 @@ BOOL fardroid::ADBPushFile(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &
 
 	if(!ADBSendFile(sockADB, sSrc, dest, sRes, mode))
 		return FALSE;
-
+	if(conf.WorkMode == WORKMODE_NATIVE && conf.UseSU && conf.UseExtendedAccess)
+		SetPermissionsFile(sDst, "-rw-rw-rw-");
 	return TRUE;
 }
 BOOL fardroid::ADB_push( LPCTSTR sSrc, LPCTSTR sDst, CString & sRes, bool bSilent )
@@ -1143,6 +1143,7 @@ bool fardroid::ADBPullDir(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &s
 
 	CString ddir = sDst;
 	CString sdir = sSrc;
+	sRes.Empty();
 	AddEndSlash(sdir, true);
 	AddEndSlash(ddir);
 	CString ssaved = sdir;
@@ -1183,9 +1184,10 @@ BOOL fardroid::ADBPullFile(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &
 	HANDLE hFile = 0;
 	int len;
 	unsigned id;
-
+	CString file = WtoUTF8(sSrc);
+	
 	m_bForceBreak = false;
-	len = lstrlen(sSrc);
+	len = lstrlen(file);
 	if(len > 1024) return FALSE;
 
 	msg.req.id = ID_RECV;
@@ -1193,7 +1195,7 @@ BOOL fardroid::ADBPullFile(SOCKET sockADB, LPCTSTR sSrc, LPCTSTR sDst, CString &
 	if(SendADBPacket(sockADB, &msg.req, sizeof(msg.req)))
 	{
 		bool bOK = false;
-		char * buf = getAnsiString(WtoUTF8(sSrc));
+		char * buf = getAnsiString(file);
 		bOK = SendADBPacket(sockADB, buf, len);
 		my_free(buf);
 		if (!bOK) return FALSE;
@@ -1495,7 +1497,7 @@ bool fardroid::ParseFileLine( CString & sLine, CFileRecords &files )
 			rec->grp = tokens[2];
 			rec->time = StringTimeToUnixTime(tokens[3], tokens[4]);
 			rec->size = 0;
-			rec->filename = tokens[5];
+			rec->filename = UTF8toW(tokens[5]);
 		}
 		break;
 	case 'l'://symlink
@@ -1984,7 +1986,7 @@ CString fardroid::GetPermissionsFile(const CString& FullFileName)
 	    CString permissions;
 		CString s;
 		CString sRes;
-		s.Format(_T("ls -l -a -d \"%s\""), FullFileName);
+		s.Format(_T("ls -l -a -d \"%s\""), WtoUTF8(FullFileName));
 		if(ADBShellExecute(s, sRes, false))
 		{
 			strvec lines;
@@ -2022,7 +2024,7 @@ bool fardroid::SetPermissionsFile(const CString& FullFileName, const CString& Pe
 {
 	CString s;
 	CString sRes;
-	s.Format(_T("chmod %s \"%s\""), fardroid::PermissionsFileToMask(PermissionsFile), FullFileName);
+	s.Format(_T("chmod %s \"%s\""), fardroid::PermissionsFileToMask(PermissionsFile), WtoUTF8(FullFileName));
 	return (ADBShellExecute(s, sRes, false) != FALSE);
 }
 
