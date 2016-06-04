@@ -1,0 +1,17 @@
+LIBRARY        MrRipper
+EXPORTS
+               SetStartupInfo
+               OpenPlugin
+               ClosePlugin
+               GetFindData
+               FreeFindData
+               GetPluginInfo
+               GetOpenPluginInfo
+               OpenFilePlugin
+               GetFiles
+			   PutFiles
+			   DeleteFiles
+               Configure
+               ProcessKey
+               SetDirectory
+			   GetMinFarVersion

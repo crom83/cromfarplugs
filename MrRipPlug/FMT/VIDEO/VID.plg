@@ -1,0 +1,36 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: VID - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSP47.tmp" with contents
+[
+/nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VID_EXPORTS" /Fp"Release/VID.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\VIDEO\VID.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP47.tmp" 
+Creating temporary file "c:\temp\RSP48.tmp" with contents
+[
+/nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "VID_EXPORTS" /Fp"Release/VID.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\VIDEO\StdAfx.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP48.tmp" 
+Creating command line "link.exe msvcrt.lib kernel32.lib /nologo /dll /incremental:no /pdb:"Release/rip_VID.pdb" /machine:I386 /nodefaultlib /def:".\VID.def" /out:"Release/rip_VID.rip" /implib:"Release/rip_VID.lib" /opt:nowin98  ".\Release\StdAfx.obj" ".\Release\VID.obj" "
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+VID.cpp
+Linking...
+   Creating library Release/rip_VID.lib and object Release/rip_VID.exp
+
+
+
+<h3>Results</h3>
+rip_VID.rip - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

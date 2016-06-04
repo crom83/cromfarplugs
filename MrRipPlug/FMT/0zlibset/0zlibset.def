@@ -1,0 +1,11 @@
+LIBRARY 0ZLIBSET
+EXPORTS
+        PackCheck
+        PackCheckFree
+        GetFile
+        PluginInfo
+        PluginInfoFree
+		GetFAT
+		PutFile
+		DelFile
+		FreeFAT

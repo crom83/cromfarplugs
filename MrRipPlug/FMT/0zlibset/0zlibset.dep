@@ -1,0 +1,22 @@
+# Microsoft Developer Studio Generated Dependency File, included by 0zlibset.mak
+
+.\0zlibset.cpp : \
+	".\ark.cpp"\
+	".\dat.cpp"\
+	".\dat1.cpp"\
+	".\lod.cpp"\
+	".\lzss.c"\
+	".\memory.cpp"\
+	".\mh.cpp"\
+	".\nfk.cpp"\
+	
+
+.\StdAfx.cpp : \
+	".\StdAfx.h"\
+	"c:\program files\microsoft platform sdk\include\basetsd.h"\
+	"c:\program files\microsoft platform sdk\include\guiddef.h"\
+	"c:\program files\microsoft platform sdk\include\tvout.h"\
+	"c:\program files\microsoft visual studio\vc98\include\rip_api.h"\
+	"c:\program files\microsoft visual studio\vc98\include\zconf.h"\
+	"c:\program files\microsoft visual studio\vc98\include\zlib.h"\
+	

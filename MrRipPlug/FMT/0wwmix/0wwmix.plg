@@ -1,0 +1,57 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: 0wwmix - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSP19.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "0wwmix_EXPORTS" /Fp"Release/0wwmix.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\0wwmix.cpp"
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\blowfish.cpp"
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP19.tmp" 
+Creating temporary file "c:\temp\RSP1A.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "0wwmix_EXPORTS" /Fp"Release/0wwmix.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\StdAfx.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP1A.tmp" 
+Creating temporary file "c:\temp\RSP1B.tmp" with contents
+[
+kernel32.lib msvcrt.lib /nologo /dll /incremental:no /pdb:"Release/0wwmix.pdb" /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib /def:".\0wwmix.def" /out:"Release/0wwmix.rip" /implib:"Release/0wwmix.lib" /opt:nowin98 
+".\Release\0wwmix.obj"
+".\Release\blowfish.obj"
+".\Release\mix_decode.obj"
+".\Release\StdAfx.obj"
+]
+Creating command line "link.exe @c:\temp\RSP1B.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+0wwmix.cpp
+blowfish.cpp
+mix_decode.cpp
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(55) : warning C4244: '=' : conversion from 'unsigned long' to 'char', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(120) : warning C4244: '=' : conversion from 'unsigned long' to 'char', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(121) : warning C4244: '=' : conversion from 'unsigned long' to 'char', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(122) : warning C4244: '=' : conversion from 'unsigned long' to 'char', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(193) : warning C4244: '=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(265) : warning C4244: '=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(270) : warning C4244: '+=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0wwmix\misc\mix_decode.cpp(335) : warning C4244: '=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+Generating Code...
+Linking...
+   Creating library Release/0wwmix.lib and object Release/0wwmix.exp
+
+
+
+<h3>Results</h3>
+0wwmix.rip - 0 error(s), 8 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Microsoft Developer Studio Generated Dependency File, included by GRP.mak
+
+.\GRP.cpp : \
+	".\bmp.cpp"\
+	".\djvu.cpp"\
+	".\gif.cpp"\
+	".\jpg.cpp"\
+	".\lbm.cpp"\
+	".\memory.cpp"\
+	".\pcx.cpp"\
+	".\png.cpp"\
+	".\tga1.cpp"\
+	".\tga2.cpp"\
+	
+
+.\StdAfx.cpp : \
+	".\StdAfx.h"\
+	"c:\program files\microsoft platform sdk\include\basetsd.h"\
+	"c:\program files\microsoft platform sdk\include\guiddef.h"\
+	"c:\program files\microsoft platform sdk\include\tvout.h"\
+	"c:\program files\microsoft visual studio\vc98\include\rip_api.h"\
+	

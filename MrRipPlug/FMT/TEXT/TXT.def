@@ -1,0 +1,5 @@
+LIBRARY RIP_TXT
+EXPORTS
+        FormatCheck
+        PluginInfo
+        PluginInfoFree

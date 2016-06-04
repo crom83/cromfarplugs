@@ -1,0 +1,45 @@
+# Microsoft Developer Studio Generated Dependency File, included by 0pakset.mak
+
+.\0pakset.cpp : \
+	".\agg.cpp"\
+	".\chasm.cpp"\
+	".\demnstar.cpp"\
+	".\dk1dat.cpp"\
+	".\dk2sdt.cpp"\
+	".\dk2wad.cpp"\
+	".\duke.cpp"\
+	".\dune2.cpp"\
+	".\dweep.cpp"\
+	".\gta3.cpp"\
+	".\gta3gxt.cpp"\
+	".\gta3sfx.cpp"\
+	".\gtavcadf.cpp"\
+	".\gtavcgxt.cpp"\
+	".\h3snd.cpp"\
+	".\h3vid.cpp"\
+	".\memory.cpp"\
+	".\mh.cpp"\
+	".\mh2.cpp"\
+	".\mw4.cpp"\
+	".\pak.cpp"\
+	".\petka.cpp"\
+	".\pff0.cpp"\
+	".\re3.cpp"\
+	".\redf.cpp"\
+	".\res.cpp"\
+	".\sh.cpp"\
+	".\ufos.cpp"\
+	".\viv.cpp"\
+	".\wad1.cpp"\
+	".\wad2.cpp"\
+	".\wad3.cpp"\
+	".\zulu.cpp"\
+	
+
+.\StdAfx.cpp : \
+	".\StdAfx.h"\
+	"c:\program files\microsoft platform sdk\include\basetsd.h"\
+	"c:\program files\microsoft platform sdk\include\guiddef.h"\
+	"c:\program files\microsoft platform sdk\include\tvout.h"\
+	"c:\program files\microsoft visual studio\vc98\include\rip_api.h"\
+	

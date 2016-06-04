@@ -1,0 +1,36 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: OTH - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSP32.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OTH_EXPORTS" /Fp"Release/OTH.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\OTHER\OTH.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP32.tmp" 
+Creating temporary file "c:\temp\RSP33.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "OTH_EXPORTS" /Fp"Release/OTH.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\OTHER\StdAfx.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP33.tmp" 
+Creating command line "link.exe msvcrt.lib kernel32.lib /nologo /dll /incremental:no /pdb:"Release/zrip_OTH.pdb" /machine:I386 /nodefaultlib /def:".\OTH.def" /out:"Release/zrip_OTH.rip" /implib:"Release/zrip_OTH.lib" /opt:nowin98  ".\Release\OTH.obj" ".\Release\StdAfx.obj" "
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+OTH.cpp
+Linking...
+   Creating library Release/zrip_OTH.lib and object Release/zrip_OTH.exp
+
+
+
+<h3>Results</h3>
+zrip_OTH.rip - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: MrRipper - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSP47D.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "MRRIPPER_EXPORTS" /D "_USRDLL" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\MrRipper.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP47D.tmp" 
+Creating temporary file "c:\temp\RSP47E.tmp" with contents
+[
+kernel32.lib advapi32.lib msvcrt.lib /nologo /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib /def:".\mrripper.def" /out:"Release/MrRipper.dll" /implib:"Release/MrRipper.lib" /opt:nowin98 
+".\Release\MrRipper.obj"
+".\Release\Script1.res"
+]
+Creating command line "link.exe @c:\temp\RSP47E.tmp"
+<h3>Output Window</h3>
+Compiling...
+MrRipper.cpp
+C:\store\files\projects\c++\Plugins\MrRipPlug\shemes.cpp(234) : warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+C:\store\files\projects\c++\Plugins\MrRipPlug\shemes.cpp(412) : warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+Linking...
+   Creating library Release/MrRipper.lib and object Release/MrRipper.exp
+
+
+
+<h3>Results</h3>
+MrRipper.dll - 0 error(s), 2 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: TXT - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSP40.tmp" with contents
+[
+/nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TXT_EXPORTS" /Fp"Release/TXT.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\TEXT\TXT.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP40.tmp" 
+Creating temporary file "c:\temp\RSP41.tmp" with contents
+[
+/nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TXT_EXPORTS" /Fp"Release/TXT.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\TEXT\StdAfx.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSP41.tmp" 
+Creating command line "link.exe msvcrt.lib kernel32.lib /nologo /dll /incremental:no /pdb:"Release/rip_TXT.pdb" /machine:I386 /nodefaultlib /def:".\TXT.def" /out:"Release/rip_TXT.rip" /implib:"Release/rip_TXT.lib" /opt:nowin98  ".\Release\StdAfx.obj" ".\Release\TXT.obj" "
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+TXT.cpp
+Linking...
+   Creating library Release/rip_TXT.lib and object Release/rip_TXT.exp
+
+
+
+<h3>Results</h3>
+rip_TXT.rip - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

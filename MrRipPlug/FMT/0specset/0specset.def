@@ -1,0 +1,6 @@
+LIBRARY 0SPECSET
+EXPORTS
+        PackCheck
+        PackCheckFree
+        PluginInfo
+        PluginInfoFree

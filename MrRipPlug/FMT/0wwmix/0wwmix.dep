@@ -1,0 +1,39 @@
+# Microsoft Developer Studio Generated Dependency File, included by 0wwmix.mak
+
+.\0wwmix.cpp : \
+	".\memory.cpp"\
+	".\misc\aud_file.h"\
+	".\misc\avi_file.cpp"\
+	".\misc\bin_file.h"\
+	".\misc\bink_file.cpp"\
+	".\misc\cc_file.cpp"\
+	".\misc\cc_structures.h"\
+	".\misc\cps_file.h"\
+	".\misc\fnt_file.h"\
+	".\misc\hva_file.h"\
+	".\misc\jpeg_file.cpp"\
+	".\misc\mix_file.cpp"\
+	".\misc\ogg_file.h"\
+	".\misc\pal_file.h"\
+	".\misc\pcx_file.h"\
+	".\misc\png_file.h"\
+	".\misc\riff_file.cpp"\
+	".\misc\shp_dune2_file.h"\
+	".\misc\vqa_file.h"\
+	".\misc\vqp_file.h"\
+	".\misc\vxl_file.h"\
+	".\misc\wav_file.cpp"\
+	".\misc\wsa_dune2_file.h"\
+	".\ra_mix.cpp"\
+	".\td_mix.cpp"\
+	
+
+.\StdAfx.cpp : \
+	".\misc\blowfish.h"\
+	".\misc\mix_decode.h"\
+	".\StdAfx.h"\
+	"c:\program files\microsoft platform sdk\include\basetsd.h"\
+	"c:\program files\microsoft platform sdk\include\guiddef.h"\
+	"c:\program files\microsoft platform sdk\include\tvout.h"\
+	"c:\program files\microsoft visual studio\vc98\include\rip_api.h"\
+	

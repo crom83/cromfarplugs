@@ -1,0 +1,20 @@
+# Microsoft Developer Studio Generated Dependency File, included by MrRipper.mak
+
+.\MrRipper.cpp : \
+	".\filework.cpp"\
+	".\formats.cpp"\
+	".\memory.cpp"\
+	".\mrripper.h"\
+	".\ripclass.cpp"\
+	".\riphlp.h"\
+	".\ripmisc.cpp"\
+	".\ripreg.cpp"\
+	"c:\program files\microsoft platform sdk\include\basetsd.h"\
+	"c:\program files\microsoft platform sdk\include\guiddef.h"\
+	"c:\program files\microsoft platform sdk\include\propidl.h"\
+	"c:\program files\microsoft platform sdk\include\tvout.h"\
+	"c:\program files\microsoft platform sdk\include\winefs.h"\
+	"c:\program files\microsoft visual studio\vc98\include\eplugin.hpp"\
+	"c:\program files\microsoft visual studio\vc98\include\plugin.hpp"\
+	"c:\program files\microsoft visual studio\vc98\include\rip_api.h"\
+	

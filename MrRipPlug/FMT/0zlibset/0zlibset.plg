@@ -1,0 +1,43 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: 0zlibset - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "c:\temp\RSPD2.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "0zlibset_EXPORTS" /Fp"Release/0zlibset.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0zlibset\0zlibset.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSPD2.tmp" 
+Creating temporary file "c:\temp\RSPD3.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "0zlibset_EXPORTS" /Fp"Release/0zlibset.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\store\files\projects\c++\Plugins\MrRipPlug\FMT\0zlibset\StdAfx.cpp"
+]
+Creating command line "cl.exe @c:\temp\RSPD3.tmp" 
+Creating temporary file "c:\temp\RSPD4.tmp" with contents
+[
+msvcrt.lib kernel32.lib /nologo /dll /incremental:no /pdb:"Release/0zlibset.pdb" /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /nodefaultlib /def:".\0zlibset.def" /out:"Release/0zlibset.rip" /implib:"Release/0zlibset.lib" /opt:nowin98 
+".\Release\0zlibset.obj"
+".\Release\StdAfx.obj"
+"..\..\..\..\..\..\..\..\Program Files\Microsoft Visual Studio\VC98\Lib\ZLIB.lib"
+]
+Creating command line "link.exe @c:\temp\RSPD4.tmp"
+<h3>Output Window</h3>
+Compiling...
+StdAfx.cpp
+Compiling...
+0zlibset.cpp
+Linking...
+   Creating library Release/0zlibset.lib and object Release/0zlibset.exp
+
+
+
+<h3>Results</h3>
+0zlibset.rip - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

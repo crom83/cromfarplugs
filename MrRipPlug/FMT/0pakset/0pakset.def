@@ -1,0 +1,11 @@
+LIBRARY 0PAKSET
+EXPORTS
+        PackCheck
+        PackCheckFree
+        PluginInfo
+        PluginInfoFree
+        GetFAT
+        PutFile
+        DelFile
+        FreeFAT
+        GetFile
