@@ -194,7 +194,7 @@ class fardroid
 {
 private:
 	int lastError;
-	CFileRecords  records;
+  CFileRecords  records;
 	ProcessStruct m_procStruct;
 	InfoPanelLine * InfoPanelLineArray;
 	InfoPanelLines lines;
@@ -203,7 +203,8 @@ private:
 	DWORD ParseSection (HANDLE hFile, BYTE sectionID);
 	bool ParseSectionBuf (BYTE * buf, int &bufPos, int bufSize, CFileRecords * record);
 	CString m_currentPath;
-	void ShowADBExecError(CString err, bool bSilent);
+  CString m_currentDevice;
+  void ShowADBExecError(CString err, bool bSilent);
 
 	SOCKET	CreateADBSocket();
 	SOCKET	PrepareADBSocket();
@@ -276,7 +277,10 @@ public:
 	bool		CreateDirDialog(CString &dest);
 	bool		CopyFilesDialog(CString &dest);
 	bool		CopyFileDialog(CString &destpath, CString &destname);
-	bool		DeleteFile(const CString& name, bool bSilent);
+  CString GetDeviceName(CString & device);
+  bool    DeviceMenu(CString &text);
+  static void SetItemText(FarMenuItem* item, const CString& text);
+  bool		DeleteFile(const CString& name, bool bSilent);
 	void		DeleteRecords(CFileRecords & recs);
 	void		PreparePanel(struct OpenPanelInfo *Info);
 	void		ChangePermissionsDialog();
