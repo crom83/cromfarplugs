@@ -21,6 +21,12 @@ int ShowDialog( int width, int height, const farStr *help, FarDialogItem * items
 	int res = fInfo.DialogRun(hDlg);
 	return res;
 }
+int ShowMenu(const farStr* title, const farStr* bottom, const farStr* help, const FarMenuItem* items, int count)
+{
+  int res = fInfo.Menu(&MainGuid, &MenuGuid, -1, -1, 0, FMENU_WRAPMODE, title, bottom, help, nullptr, nullptr, items, count);;
+  return res;
+}
+
 CString GetPanelPath( bool another /*= false*/ ) 
 {
 	CString ret;

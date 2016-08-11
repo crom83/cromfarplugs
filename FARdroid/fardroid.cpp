@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "fardroid.h"
+#include <vector>
 
 DWORD WINAPI ProcessThreadProc( LPVOID lpParam ) 
 { 
@@ -26,7 +27,8 @@ DWORD WINAPI ProcessThreadProc( LPVOID lpParam )
 fardroid::fardroid(void)
 {
 	m_currentPath = _T("");
-	InfoPanelLineArray = NULL;
+  m_currentDevice = _T("");
+  InfoPanelLineArray = NULL;
 	lastError = S_OK;
 	m_bForceBreak = false;
 }
@@ -650,7 +652,7 @@ void fardroid::PreparePanel( OpenPanelInfo *Info )
 	//TODO!!! - сделать динамические массивы
 	Info->HostFile = _C(fileUnderCursor);
 
-	panelTitle.Format(_T(" %s: /%s "), GetMsg(MTitle), m_currentPath);
+	panelTitle.Format(_T(" %s: %s/%s "), GetMsg(MTitle), m_currentDevice, m_currentPath);
 	Info->PanelTitle = _C(panelTitle);
 	Info->CurDir = _C(m_currentPath);
 
@@ -812,6 +814,59 @@ bool fardroid::CopyFileDialog( CString &destpath, CString &destname )
 	return res == 5;
 }
 
+CString fardroid::GetDeviceName(CString& device)
+{
+  strvec name;
+  Tokenize(device, name, _T("\t"));
+  return name[0];
+}
+
+bool fardroid::DeviceMenu(CString &text)
+{
+  strvec devices;
+  std::vector<FarMenuItem> items;
+
+  Tokenize(text, devices, _T("\n"));
+
+  auto size = devices.GetSize();
+
+  if (size == 0 )
+  {
+    return false;
+  }
+  if (size == 1)
+  {
+    m_currentDevice = GetDeviceName(devices[0]);
+    return true;
+  }
+
+  for (auto i = 0; i < devices.GetSize(); i++) {
+    FarMenuItem item;
+    ::ZeroMemory(&item, sizeof(item));
+    SetItemText(&item, GetDeviceName(devices[i]));
+    items.push_back(item);
+  }
+
+  int res = ShowMenu(GetMsg(MSelectDevice), _F(""), _F(""), items.data(), items.size());
+  if (res >= 0)
+  {
+    m_currentDevice = GetDeviceName(devices[res]);
+    return true;
+  }
+
+  return false;
+}
+
+void fardroid::SetItemText(FarMenuItem* item, const CString &text)
+{
+  size_t len = text.GetLength() + 1;
+  wchar_t * buf = new wchar_t[len];;
+  wcscpy(buf, text);
+  //lstrcpyW(buf, _C(text));
+  delete[] item->Text;
+  item->Text = buf;
+}
+
 void fardroid::Reread()
 {
 	CString p = m_currentPath;
@@ -854,7 +909,7 @@ int fardroid::ChangeDir( LPCTSTR sDir, int OpMode)
 		return TRUE;
 	}
 
-	if (OpMode != 0 || lastError == ERROR_DEV_NOT_EXIST)
+	if (OpMode != 0 || lastError != S_OK)
 		return FALSE;
 
 	tempPath = m_currentPath;
@@ -2122,17 +2177,55 @@ SOCKET fardroid::PrepareADBSocket()
 	int tryCnt = 0;
 tryagain:
 	SOCKET sock = CreateADBSocket();
-	if (sock)
-	{
-		if (!SendADBCommand(sock, _T("host:transport-any")))
-		{
-			lastError = ERROR_DEV_NOT_EXIST;
-			ShowADBExecError(GetMsg(MDeviceNotFound), false);
+  if (sock)
+  {
+    if (m_currentDevice.IsEmpty())
+    {
+      if (SendADBCommand(sock, _T("host:devices")))
+      {
+        CString devices = "";
+        auto buf = new char[4097];
+        ReadADBPacket(sock, buf, 4);
+        while (true)
+        {
+          auto len = ReadADBPacket(sock, buf, 4096);
+          if (len <= 0) {
+            break;
+          }
 
-			CloseADBSocket(sock);
-			sock = 0;
-		}
-	}
+          buf[len] = 0;
+          devices += buf;
+        }
+
+        CloseADBSocket(sock);
+        sock = 0;
+
+        if (DeviceMenu(devices)) {
+          goto tryagain;
+        }
+        lastError = ERROR_CONTROL_C_EXIT;
+      }
+      else
+      {
+        lastError = ERROR_DEV_NOT_EXIST;
+        ShowADBExecError(GetMsg(MDeviceNotFound), false);
+
+        CloseADBSocket(sock);
+        sock = 0;
+      }
+    }
+    else
+    {
+      if (!SendADBCommand(sock, _T("host:transport:")+ m_currentDevice))
+      {
+        lastError = ERROR_DEV_NOT_EXIST;
+        ShowADBExecError(GetMsg(MDeviceNotFound), false);
+
+        CloseADBSocket(sock);
+        sock = 0;
+      }
+    }
+  }
 	else
 	{
 		if (tryCnt == 0)

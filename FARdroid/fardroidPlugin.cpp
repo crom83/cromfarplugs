@@ -22,7 +22,7 @@ void	WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(struct GlobalInfo);
 	Info->MinFarVersion=MAKEFARVERSION(3,0,0,3000,VS_RELEASE); 
-	Info->Version=MAKEFARVERSION(1,0,46,0,VS_RC);
+	Info->Version=MAKEFARVERSION(1,0, BUILDNUMBER,0,VS_RC);
 	Info->Guid=MainGuid;
 	Info->Title=L"FARdroid";
 	Info->Description=L"fardroid FAR Plugin";
