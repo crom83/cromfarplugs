@@ -1,0 +1,9 @@
+.pdb
+.log
+.tlog
+.obj
+.exp
+.map
+.pch
+.lib
+.res
